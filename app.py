@@ -45,7 +45,8 @@ if st.session_state.get('use_demo', False):
                     if c.strip().lower() == t:
                         return c
             return ''
-        product_guess = find_col(['product_name', 'product', 'name'])
+        # Also match 'Product Name' to 'product_name' for standardization
+        product_guess = find_col(['product_name', 'product', 'name', 'product name'])
         category_guess = find_col(['category', 'cat'])
         sku_guess = find_col(['sku', 'код', 'id'])
         col1, col2, col3 = st.columns(3)
@@ -57,7 +58,12 @@ if st.session_state.get('use_demo', False):
             col_sku = st.selectbox(f"SKU column {os.path.basename(demo_files[i])}", [''] + columns, index=([''] + columns).index(sku_guess) if sku_guess in columns else 0, key=f"sku_{i}")
         # Standardize columns if selected
         rename_dict = {}
-        if col_product: rename_dict[col_product] = 'product_name'
+        # Always map 'Product Name' to 'product_name' for matching
+        if col_product:
+            if col_product.lower().strip() == 'product name':
+                rename_dict[col_product] = 'product_name'
+            else:
+                rename_dict[col_product] = 'product_name'
         if col_category: rename_dict[col_category] = 'category'
         if col_sku: rename_dict[col_sku] = 'SKU'
         df_selected = df_demo.rename(columns=rename_dict)
@@ -95,7 +101,7 @@ elif uploaded_files:
                     if c.strip().lower() == t:
                         return c
             return ''
-        product_guess = find_col(['product_name', 'product', 'name'])
+        product_guess = find_col(['product_name', 'product', 'name', 'product name'])
         category_guess = find_col(['category', 'cat'])
         sku_guess = find_col(['sku', 'код', 'id'])
         col1, col2, col3 = st.columns(3)
@@ -106,7 +112,12 @@ elif uploaded_files:
         with col3:
             col_sku = st.selectbox(f"SKU column for {source_name}", [''] + columns, index=([''] + columns).index(sku_guess) if sku_guess in columns else 0, key=f"sku_up_{source_name}")
         rename_dict = {}
-        if col_product: rename_dict[col_product] = 'product_name'
+        # Always map 'Product Name' to 'product_name' for matching
+        if col_product:
+            if col_product.lower().strip() == 'product name':
+                rename_dict[col_product] = 'product_name'
+            else:
+                rename_dict[col_product] = 'product_name'
         if col_category: rename_dict[col_category] = 'category'
         if col_sku: rename_dict[col_sku] = 'SKU'
         temp_df = temp_df.rename(columns=rename_dict)
