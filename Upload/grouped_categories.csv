@@ -1,0 +1,71 @@
+﻿product_name,category,SKU,Price,Brand,Description,Weight,Color,Power Usage (W),source_file,Price (USD),Manufacturer,Main Features,Dimensions (mm),Material,RAM (GB),Storage (GB),Screen Resolution,Noise Level (dB),Screen Size (in),Retail Price,Vendor,Specs,Size,Model,Weight (kg),Unit Price,Make,Details,Availability,Rating,Resolution,Print Speed (ppm),group_name
+Nespresso Vertuo,Home & Kitchen,EN_SKU_10_1,1485 W,,,48.4,Red,1485 W,source1.csv,,,,,,,,,,,,,,,,,,,,,,,,Home & Kitchen
+DeLonghi Magnifica,Home & Kitchen,EN_SKU_10_0,1409 W,,,34.2,Red,1409 W,source1.csv,,,,,,,,,,,,,,,,,,,,,,,,Home & Kitchen
+Philips 3200 Series,Home & Kitchen,EN_SKU_10_2,815 W,,,62.6,Red,815 W,source1.csv,,,,,,,,,,,,,,,,,,,,,,,,Home & Kitchen
+Wayfair Dining Table,Home & Kitchen,EN_SKU_4_2,,,,,Gray,,source1.csv,,,,,,,,,,,,,,,,,,,,,,,,Home & Kitchen
+Ashley Sofa Set,Home & Kitchen,EN_SKU_4_1,,,,,White,,source1.csv,,,,,,,,,,,,,,,,,,,,,,,,Home & Kitchen
+HP LaserJet M404,Electronics,EN_SKU_9_0,530 W,,,67.0,Beige,530 W,source1.csv,,,,,,,,,,,,,,,,,,,,,,,,Electronics
+Canon Pixma G7020,Electronics,EN_SKU_9_1,877 W,,,66.0,Black,877 W,source1.csv,,,,,,,,,,,,,,,,,,,,,,,,Electronics
+Epson EcoTank L3250,Electronics,EN_SKU_9_2,742 W,,,32.2,White,742 W,source1.csv,,,,,,,,,,,,,,,,,,,,,,,,Electronics
+Sony Bravia 55,Electronics,EN_SKU_1_0,,,,,,,source1.csv,,,,,,,,,,,,,,,,,,,,,,,,Electronics
+LG OLED65,Electronics,EN_SKU_1_1,,,,,,,source1.csv,,,,,,,,,,,,,,,,,,,,,,,,Electronics
+HP Pavilion 15,Электроника,EN_SKU_3_0,,,,,,,source2.csv,850.0,HP,Fast processor,358x242x19,Metal/Plastic,16.0,512.0,1920x1080,,15.6,,,,,,,,,,,,,,Носимая Электроника
+MacBook Air M2,Электронные Устройства,EN_SKU_3_1,,,,,,,source2.csv,1199.0,Apple,Ultra-thin and powerful,304x215x11,Aluminum,8.0,256.0,2560x1600,,13.6,,,,,,,,,,,,,,Электронные Устройства
+Dell XPS 13,Компьютеры,EN_SKU_3_2,,,,,,,source2.csv,1300.0,Dell,Compact design,296x199x15,Aluminum,16.0,512.0,1920x1200,,13.4,,,,,,,,,,,,,,Компьютеры
+"Sony Bravia OLED 55""",Телевизоры,S2-TV01,,,,,,,source2.csv,1500.0,Sony,Vivid OLED display,1229x710x58,Glass/Plastic,,,3840x2160,,55.0,,,,,,,,,,,,,,Смарт Телевизоры
+HP Spectre x360,Ноутбуки,S2-PC01,,,,,,,source2.csv,1400.0,HP,2-in-1 convertible,306x194x16,Aluminum,16.0,1024.0,1920x1080,,13.3,,,,,,,,,,,,,,Ноутбуки
+"TCL Roku 43""",Смарт Телевизоры,S2-TV02,,,,,,,source2.csv,320.0,TCL,Integrated Roku OS,970x567x80,Plastic,,,1920x1080,,43.0,,,,,,,,,,,,,,Смарт Телевизоры
+Drill Makita LXT Brushless,Электроинструмент,S2-DR02,,,,,,,source2.csv,175.0,Makita,Cordless and powerful,200x80x250,Metal/Plastic,,,,80.0,,,,,,,,,,,,,,,Электроинструмент
+Drill Makita Electric Hand,Ручной Инструмент,S2-DR01,,,,,,,source2.csv,85.0,Makita,Lightweight and ergonomic,180x60x220,Plastic,,,,75.0,,,,,,,,,,,,,,,Инструменты
+Drill DeWalt XR Cordless,Инструменты,S3-DR01,,,,,,,source2.csv,210.0,DeWalt,Heavy-duty performance,210x85x260,Metal/Rubber,,,,82.0,,,,,,,,,,,,,,,Инструменты
+Wayfair Dining Table,Домашняя Мебель,EN_SKU_4_2,,,,,,,source2.csv,299.99,Wayfair,Solid wood construction,1400x800x750,Wood,,,,,,,,,,,,,,,,,,,Домашняя Мебель
+Ashley Sofa Set,Мебель для Гостиной,EN_SKU_4_1,,,,,,,source2.csv,749.5,Ashley Furniture,Sectional with chaise,2400x1600x900,Fabric,,,,,,,,,,,,,,,,,,,Домашняя Мебель
+IKEA Malm Bed,Мебель для Спальни,EN_SKU_4_0,,,,,,,source2.csv,199.0,IKEA,Minimalist design,2000x1600x300,Particleboard,,,,,,,,,,,,,,,,,,,Домашняя Мебель
+Nespresso Vertuo,Кофемашины,EN_SKU_10_1,,,,,,,source2.csv,149.0,Nespresso,Single-serve brewing,140x240x310,Plastic,,,,60.0,,,,,,,,,,,,,,,Кофемашины
+DeLonghi Magnifica,Кухонные Приборы,EN_SKU_10_0,,,,,,,source2.csv,600.0,DeLonghi,Bean-to-cup coffee,238x430x350,Metal/Plastic,,,,65.0,,,,,,,,,,,,,,,Кухонные Приборы
+Philips 3200 Series,Кухонная Техника,EN_SKU_10_2,,,,,,,source2.csv,450.0,Philips,Milk frother,247x366x434,Plastic,,,,62.0,,,,,,,,,,,,,,,Кухонная Техника
+Daikin Split AC,Климатическая Техника,EN_SKU_8_0,,,,,,,source2.csv,680.0,Daikin,Inverter technology,770x280x225,Plastic,,,,47.0,,,,,,,,,,,,,,,Бытовая Техника
+Samsung Wind-Free,Кондиционеры,EN_SKU_8_1,,,,,,,source2.csv,920.0,Samsung,Wind-Free cooling,880x296x215,Plastic,,,,45.0,,,,,,,,,,,,,,,Кондиционеры
+Hammer,Строительные Инструменты,SKU_1_9,,,,,,,source2.csv,15.0,Stanley,Claw hammer with comfortable grip,330x120x30,Steel/Wood,,,,,,,,,,,,,,,,,,,Инструменты
+Screwdriver Set,Ручные Инструменты,SKU_1_10,,,,,,,source2.csv,25.0,Craftsman,Precision set for small repairs,200x100x40,Steel/Plastic,,,,,,,,,,,,,,,,,,,Инструменты
+LG DualCool,Бытовая Техника,EN_SKU_8_2,,,,,,,source2.csv,750.0,LG,Dual Inverter Compressor,998x345x210,Plastic,,,,44.0,,,,,,,,,,,,,,,Бытовая Техника
+Wayfair Dining Table,Товары для Дома,EN_SKU_4_2,,,,,Brown,,source3.csv,,,,,Wood,,,,,,299.99,Wayfair,Solid wood construction,55x71x57,,45.0,,,,,,,,Домашняя Мебель
+Ashley Sofa Set,Мебель для Дома,EN_SKU_4_1,,,,,Grey,,source3.csv,,,,,Fabric,,,,,,749.5,Ashley Furniture,Sectional with chaise,94x151x72,,70.0,,,,,,,,Домашняя Мебель
+IKEA Malm Bed,Спальня Мебель,EN_SKU_4_0,,,,,White,,source3.csv,,,,,Laminated Particleboard,,,,,,199.0,IKEA,Platform bed,97x77x48,,40.0,,,,,,,,Домашняя Мебель
+Daikin Split AC,Климатическая Техника,EN_SKU_8_0,,,,,White,,source3.csv,,,,,Plastic,,,,47 dB,,680.0,Daikin,Inverter technology,79x72x25,,20.9,,,,,,,,Бытовая Техника
+Samsung Wind-Free,Кондиционеры,EN_SKU_8_1,,,,,Black,,source3.csv,,,,,Plastic,,,,45 dB,,920.0,Samsung,Wind-Free cooling,71x79x25,,39.6,,,,,,,,Кондиционеры
+Drill Makita LXT Brushless,Электроинструмент,S2-DR02,,,,,Blue,,source3.csv,,,,,Metal/Plastic,,,,,,175.0,Makita,Cordless and powerful,,LXT18V,2.5,,,,,,,,Электроинструмент
+Drill Makita Electric Hand,Ручной Инструмент,S2-DR01,,,,,Green,,source3.csv,,,,,Plastic,,,,,,85.0,Makita,Lightweight and ergonomic,,HandDrill,1.8,,,,,,,,Инструменты
+Drill DeWalt XR Cordless,Инструменты,S3-DR01,,,,,Yellow,,source3.csv,,,,,Metal/Rubber,,,,,,210.0,DeWalt,Heavy-duty performance,,XR20V,2.8,,,,,,,,Инструменты
+Hammer,Строительный Инструмент,,,,,,Steel/Wood,,source3.csv,,,,,,,,,,,15.0,Stanley,Claw hammer,,,0.7,,,,,,,,Инструменты
+Screwdriver Set,Наборы Инструментов,,,,,,Red,,source3.csv,,,,,Steel/Plastic,,,,,,25.0,Craftsman,Precision set,,,0.5,,,,,,,,Инструменты
+LG Gram 17,Ноутбуки,,,,,,Silver,,source3.csv,,,,,Magnesium Alloy,,,2560x1600,,,1500.0,LG,Lightweight professional laptop,,17Z90P,1.35,,,,,,,,Ноутбуки
+Bose QuietComfort,Наушники,,,,,,Black,,source3.csv,,,,,Plastic/Leather,,,,,,299.0,Bose,Noise-cancelling,,QC45,0.24,,,,,,,,Наушники
+Samsung Galaxy S22,Смартфоны,,,,,,Green,,source3.csv,,,,,Glass/Aluminum,,,2340x1080,,,799.0,Samsung,Flagship Android phone,,S22,0.167,,,,,,,,Смартфоны
+Kitchen Mixer,Кухонные Приборы,,,,,,Red,,source3.csv,,,,,Stainless Steel,,,,,,120.0,KitchenAid,Stand mixer,,Artisan,10.0,,,,,,,,Кухонные Приборы
+Vacuum Cleaner,Бытовые Приборы,,,,,,Purple,,source3.csv,,,,,Plastic,,,,70 dB,,250.0,Dyson,Cordless stick vacuum,,V11,3.0,,,,,,,,Бытовые Приборы
+"Book: ""War and Peace""",Книги,,,,,,,,source3.csv,,,,,Paper,,,,,,20.0,Penguin Classics,Classic literature,,,1.2,,,,,,,,Книги
+Running Shoes,Спортивная Обувь,,,,,,Blue,,source3.csv,,,,,Mesh/Rubber,,,,,,110.0,Nike,Cushioned for comfort,,Air Zoom,0.6,,,,,,,,Спортивная Обувь
+Smart Doorbell,Умный Дом,,,,,,Black,,source3.csv,,,,,Plastic,,,1080p,,,150.0,Ring,Video doorbell,,Video Doorbell 4,0.5,,,,,,,,Умный Дом
+Gaming Monitor,Игровые Мониторы,,,,,,Black,,source3.csv,,,,,Plastic,,,2560x1440,,,450.0,Dell,High refresh rate,,Alienware 27,6.5,,,,,,,,Игровые Мониторы
+Digital Camera,Фотоаппараты,,,,,,Black,,source3.csv,,,,,Plastic,,,,,,600.0,Canon,Mirrorless camera,,EOS M50 Mark II,0.387,,,,,,,,Фотоаппараты
+Sony Bravia 55,Электроника,EN_SKU_1_0,,,,,Black,,source4.csv,,,,,Plastic/Metal,,,,,,,,,,,15.5,1200.0,Sony,Smart TV with vivid display,In Stock,4.7,1080p,,Носимая Электроника
+LG OLED65,Электронные Устройства,EN_SKU_1_1,,,,,Black,,source4.csv,,,,,Glass/Aluminum,,,,,,,,,,,18.2,2500.0,LG,Stunning OLED display,Low Stock,4.9,8K,,Электронные Устройства
+HP LaserJet M404,Принтеры,EN_SKU_9_0,,,,,White,,source4.csv,,,,,Plastic,,,,,,,,,,,9.8,350.0,HP,High-speed monochrome laser printer,In Stock,4.5,,35 ppm,Принтеры
+Ashley Sofa Set,Товары для Дома,EN_SKU_4_1,,,,,Gray,,source4.csv,,,,,Fabric,,,,,,,,,,,65.0,899.99,Ashley Furniture,Comfortable and stylish,In Stock,4.6,,,Домашняя Мебель
+IKEA Malm Bed,Мебель для Дома,EN_SKU_4_0,,,,,Wood,,source4.csv,,,,,Wood,,,,,,,,,,,45.0,249.5,IKEA,Modern minimalist design,In Stock,4.2,,,Домашняя Мебель
+Daikin Split AC,Бытовая Техника,EN_SKU_8_0,,,,,White,,source4.csv,,,,,Plastic,,,,,,,,,,,20.9,750.0,Daikin,Energy-efficient cooling,In Stock,4.8,,,Бытовая Техника
+Drill DeWalt XR Cordless,Инструменты,S3-DR01,,,,,Yellow,,source4.csv,,,,,Plastic/Metal,,,,,,,,,,,2.5,180.0,DeWalt,Powerful and versatile,In Stock,4.7,,,Инструменты
+Drill Black & Decker 20V,Ручной Инструмент,S3-DR02,,,,,Orange,,source4.csv,,,,,Plastic,,,,,,,,,,,1.8,65.0,Black & Decker,Compact and easy to use,In Stock,4.3,,,Инструменты
+XZ,Разное,,,,,,,,source4.csv,,,,,,,,,,,,,,,,0.5,15.0,Generic,Miscellaneous item,Out of Stock,3.0,,,Разное
+TV TCL Roku 43,Телевизоры,S2-TV02,,,,,Black,,source4.csv,,,,,Plastic,,,,,,,,,,,8.0,320.0,TCL,Smart TV with Roku OS,In Stock,4.4,1080p,,Смарт Телевизоры
+Dell XPS 13,Портативные Устройства,EN_SKU_3_2,,,,,Silver,,source4.csv,,,,,Aluminum,,,,,,,,,,,1.2,1300.0,Dell,Ultraportable laptop,In Stock,4.8,FHD,,Портативные Устройства
+Samsung QLED 4K,Дисплеи,EN_SKU_1_2,,,,,Black,,source4.csv,,,,,Metal,,,,,,,,,,,16.0,1500.0,Samsung,Vibrant QLED display,In Stock,4.7,4K,,Дисплеи
+Screwdriver Set,Наборы Инструментов,,,,,,Red/Black,,source4.csv,,,,,Steel/Rubber,,,,,,,,,,,0.8,25.0,Stanley,Essential for home repairs,In Stock,4.0,,,Инструменты
+Coffee Grinder,Кухонные Приборы,,,,,,Silver,,source4.csv,,,,,Stainless Steel,,,,,,,,,,,1.0,45.0,Krups,Electric coffee bean grinder,In Stock,4.1,,,Кухонные Приборы
+Smartwatch XYZ,Носимая Электроника,,,,,,Black,,source4.csv,,,,,Silicone,,,,,,,,,,,0.1,199.99,XYZ Tech,Fitness tracking and notifications,In Stock,4.6,,,Носимая Электроника
+Yoga Mat,Спортивные Товары,,,,,,Blue,,source4.csv,,,,,Rubber,,,,,,,,,,,1.2,30.0,Gaiam,Non-slip surface,In Stock,4.2,,,Спортивные Товары
+Car Wax,Автомобильные Аксессуары,,,,,,,,source4.csv,,,,,Liquid,,,,,,,,,,,0.4,18.0,Turtle Wax,High-shine car protection,In Stock,4.5,,,Автомобильные Аксессуары
+Face Cream,Косметика,,,,,,White,,source4.csv,,,,,Cream,,,,,,,,,,,0.1,55.0,La Mer,Anti-aging moisturizer,In Stock,4.8,,,Косметика
+Building Blocks,Детские Игрушки,,,,,,Multi-color,,source4.csv,,,,,Plastic,,,,,,,,,,,1.5,40.0,LEGO,Creative construction set,In Stock,4.7,,,Детские Игрушки
+Organic Coffee Beans,Продукты Питания,,,,,,,,source4.csv,,,,,Beans,,,,,,,,,,,0.5,15.99,Starbucks,Fair trade dark roast,In Stock,4.6,,,Продукты Питания
