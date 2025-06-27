@@ -168,21 +168,81 @@ if df is not None:
                 "cluster": clustering.labels_
             })
             # 7. Show clusters
-            manual_join = st.checkbox("Manually join clusters", key="manual_join")
-            if 'fixed_clusters' not in st.session_state:
-                st.session_state['fixed_clusters'] = set()
-            for cluster_id in sorted(df_clusters["cluster"].unique()):
-                cluster_key = f"cluster_{cluster_id}_fixed"
-                is_fixed = cluster_id in st.session_state['fixed_clusters']
-                with st.expander(f"Cluster {cluster_id}"):
-                    st.write(df_clusters[df_clusters["cluster"] == cluster_id]["original_category"].tolist())
-                    if manual_join:
-                        if is_fixed:
-                            st.success("Joined (fixed)")
-                        else:
-                            if st.button(f"Join this cluster", key=cluster_key):
-                                st.session_state['fixed_clusters'].add(cluster_id)
-                                st.rerun()
+            manual_join = st.checkbox("Manually join clusters (wizard mode)", key="manual_join")
+            if manual_join:
+                if 'wizard_clusters' not in st.session_state or st.session_state.get('wizard_reset', False):
+                    st.session_state['wizard_clusters'] = sorted(df_clusters["cluster"].unique())
+                    st.session_state['wizard_index'] = 0
+                    st.session_state['wizard_approved'] = set()
+                    st.session_state['wizard_renames'] = {}
+                    st.session_state['wizard_reset'] = False
+
+                clusters = st.session_state['wizard_clusters']
+                idx = st.session_state['wizard_index']
+                approved = st.session_state['wizard_approved']
+                renames = st.session_state['wizard_renames']
+
+                if idx < len(clusters):
+                    cluster_id = clusters[idx]
+                    cluster_cats = df_clusters[df_clusters["cluster"] == cluster_id]["original_category"].tolist()
+                    st.markdown(f"### Cluster {cluster_id}")
+                    st.write(cluster_cats)
+                    colA, colB = st.columns(2)
+                    with colA:
+                        if st.button("Approve (rename all to first)", key=f"approve_{cluster_id}"):
+                            # Approve: rename all in this cluster to first value
+                            group_name = cluster_cats[0]
+                            for cat in cluster_cats:
+                                renames[cat] = group_name
+                            approved.add(cluster_id)
+                            st.session_state['wizard_index'] += 1
+                            st.experimental_rerun()
+                    with colB:
+                        if st.button("Skip", key=f"skip_{cluster_id}"):
+                            st.session_state['wizard_index'] += 1
+                            st.experimental_rerun()
+                    st.info("Step {}/{}".format(idx+1, len(clusters)))
+                else:
+                    st.success("Wizard complete! Review or fix results below.")
+                    if st.button("Fix Results (Apply Renames)", key="fix_results_btn"):
+                        # Apply renames to df
+                        group_table = df_clusters.copy()
+                        group_table["group_name"] = group_table["original_category"].map(lambda x: renames.get(x, x))
+                        grouped_df = df.merge(group_table[["original_category", "group_name"]], left_on=category_col, right_on="original_category", how="left")
+                        if group_only_diff_sources and "source_file" in grouped_df.columns:
+                            grouped_df['source_file_count'] = grouped_df.groupby('group_name')['source_file'].transform('nunique')
+                            grouped_df = grouped_df[grouped_df['source_file_count'] > 1].drop(columns=['source_file_count'])
+                        if "original_category" in grouped_df.columns:
+                            grouped_df = grouped_df.drop(columns=["original_category"])
+                        st.dataframe(grouped_df)
+                        st.download_button(
+                            "Download grouped table CSV",
+                            grouped_df.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig"),
+                            "grouped_categories.csv",
+                            "text/csv"
+                        )
+                        save_path = os.path.join(os.getcwd(), "grouped_categories.csv")
+                        grouped_df.to_csv(save_path, index=False, encoding="utf-8-sig")
+                        st.info(f"Grouped table automatically saved to: {save_path}")
+                    if st.button("Restart Wizard", key="restart_wizard"):
+                        st.session_state['wizard_reset'] = True
+                        st.experimental_rerun()
+            else:
+                # fallback to old cluster join UI if not in wizard mode
+                if 'fixed_clusters' not in st.session_state:
+                    st.session_state['fixed_clusters'] = set()
+                for cluster_id in sorted(df_clusters["cluster"].unique()):
+                    cluster_key = f"cluster_{cluster_id}_fixed"
+                    is_fixed = cluster_id in st.session_state['fixed_clusters']
+                    with st.expander(f"Cluster {cluster_id}"):
+                        st.write(df_clusters[df_clusters["cluster"] == cluster_id]["original_category"].tolist())
+                        if manual_join:
+                            if is_fixed:
+                                st.success("Joined (fixed)")
+                            else:
+                                if st.button(f"Join this cluster", key=cluster_key):
+                                    st.session_state['fixed_clusters'].add(cluster_id)
+                                    st.rerun()
             # 8. Fix groups as parent
             if st.button("Fix groups as parent"):
                 group_table = df_clusters.copy()
