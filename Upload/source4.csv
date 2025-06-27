@@ -1,21 +1,21 @@
 Product Name,Category,SKU,Unit Price,Make,Details,Availability,Rating,Resolution,Print Speed (ppm),Weight (kg),Color,Material
-Sony Bravia 55,Электроника,EN_SKU_1_0,1200.00,Sony,Smart TV with vivid display,In Stock,4.7,1080p,N/A,15.5,Black,Plastic/Metal
-LG OLED65,Электронные Устройства,EN_SKU_1_1,2500.00,LG,Stunning OLED display,Low Stock,4.9,8K,N/A,18.2,Black,Glass/Aluminum
-HP LaserJet M404,Принтеры,EN_SKU_9_0,350.00,HP,High-speed monochrome laser printer,In Stock,4.5,N/A,35 ppm,9.8,White,Plastic
-Ashley Sofa Set,Товары для Дома,EN_SKU_4_1,899.99,Ashley Furniture,Comfortable and stylish,In Stock,4.6,N/A,N/A,65.0,Gray,Fabric
-IKEA Malm Bed,Мебель для Дома,EN_SKU_4_0,249.50,IKEA,Modern minimalist design,In Stock,4.2,N/A,N/A,45.0,Wood,Wood
-Daikin Split AC,Бытовая Техника,EN_SKU_8_0,750.00,Daikin,Energy-efficient cooling,In Stock,4.8,N/A,N/A,20.9,White,Plastic
-Drill DeWalt XR Cordless,Инструменты,S3-DR01,180.00,DeWalt,Powerful and versatile,In Stock,4.7,N/A,N/A,2.5,Yellow,Plastic/Metal
-Drill Black & Decker 20V,Ручной Инструмент,S3-DR02,65.00,Black & Decker,Compact and easy to use,In Stock,4.3,N/A,N/A,1.8,Orange,Plastic
-XZ,Разное,N/A,15.00,Generic,Miscellaneous item,Out of Stock,3.0,N/A,N/A,0.5,N/A,N/A
-TV TCL Roku 43,Телевизоры,S2-TV02,320.00,TCL,Smart TV with Roku OS,In Stock,4.4,1080p,N/A,8.0,Black,Plastic
-Dell XPS 13,Портативные Устройства,EN_SKU_3_2,1300.00,Dell,Ultraportable laptop,In Stock,4.8,FHD,N/A,1.2,Silver,Aluminum
-Samsung QLED 4K,Дисплеи,EN_SKU_1_2,1500.00,Samsung,Vibrant QLED display,In Stock,4.7,4K,N/A,16.0,Black,Metal
-Screwdriver Set,Наборы Инструментов,N/A,25.00,Stanley,Essential for home repairs,In Stock,4.0,N/A,N/A,0.8,Red/Black,Steel/Rubber
-Coffee Grinder,Кухонные Приборы,N/A,45.00,Krups,Electric coffee bean grinder,In Stock,4.1,N/A,N/A,1.0,Silver,Stainless Steel
-Smartwatch XYZ,Носимая Электроника,N/A,199.99,XYZ Tech,Fitness tracking and notifications,In Stock,4.6,N/A,N/A,0.1,Black,Silicone
-Yoga Mat,Спортивные Товары,N/A,30.00,Gaiam,Non-slip surface,In Stock,4.2,N/A,N/A,1.2,Blue,Rubber
-Car Wax,Автомобильные Аксессуары,N/A,18.00,Turtle Wax,High-shine car protection,In Stock,4.5,N/A,N/A,0.4,N/A,Liquid
-Face Cream,Косметика,N/A,55.00,La Mer,Anti-aging moisturizer,In Stock,4.8,N/A,N/A,0.1,White,Cream
-Building Blocks,Детские Игрушки,N/A,40.00,LEGO,Creative construction set,In Stock,4.7,N/A,N/A,1.5,Multi-color,Plastic
-Organic Coffee Beans,Продукты Питания,N/A,15.99,Starbucks,Fair trade dark roast,In Stock,4.6,N/A,N/A,0.5,N/A,Beans
+Sony Bravia 55",LED Televisions,EN_SKU_1_0,1200.00,Sony,Smart TV with vivid display,In Stock,4.7,1080p,N/A,15.5,Black,Plastic/Metal
+LG OLED65,OLED Televisions,EN_SKU_1_1,2500.00,LG,Stunning OLED display,Low Stock,4.9,8K,N/A,18.2,Black,Glass/Aluminum
+HP LaserJet M404,Laser Printers,EN_SKU_9_0,350.00,HP,High-speed monochrome laser printer,In Stock,4.5,N/A,35 ppm,9.8,White,Plastic
+Ashley Sofa Set,Living Room Furniture,EN_SKU_4_1,749.50,Ashley Furniture,Comfortable and stylish,In Stock,4.6,N/A,N/A,65.0,Gray,Fabric
+IKEA Malm Bed,Bedroom Furniture,EN_SKU_4_0,199.00,IKEA,Modern minimalist design,In Stock,4.2,N/A,N/A,45.0,Wood,Wood
+Daikin Split AC,Air Conditioning Units,EN_SKU_8_0,680.00,Daikin,Energy-efficient cooling,In Stock,4.8,N/A,N/A,20.9,White,Plastic
+Drill DeWalt XR Cordless,Cordless Drills,S3-DR01,210.00,DeWalt,Powerful and versatile,In Stock,4.7,N/A,N/A,2.8,Yellow,Plastic/Metal
+Drill Black & Decker 20V,Electric Drills,S3-DR02,65.00,Black & Decker,Compact and easy to use,In Stock,4.3,N/A,N/A,1.8,Orange,Plastic
+XZ,Miscellaneous,N/A,15.00,Generic,Miscellaneous item,Out of Stock,3.0,N/A,N/A,0.5,N/A,N/A
+TCL Roku 43",Smart Televisions,S2-TV02,320.00,TCL,Smart TV with Roku OS,In Stock,4.4,1080p,N/A,8.0,Black,Plastic
+Dell XPS 13,Portable Computers,EN_SKU_3_2,1300.00,Dell,Ultraportable laptop,In Stock,4.8,FHD,N/A,1.2,Silver,Aluminum
+Samsung QLED 4K,QLED Displays,EN_SKU_1_2,1500.00,Samsung,Vibrant QLED display,In Stock,4.7,4K,N/A,16.0,Black,Metal
+Screwdriver Set,Tool Kits,N/A,25.00,Craftsman,Essential for home repairs,In Stock,4.0,N/A,N/A,0.8,Red/Black,Steel/Rubber
+Coffee Grinder,Kitchen Appliances,N/A,45.00,Krups,Electric coffee bean grinder,In Stock,4.1,N/A,N/A,1.0,Silver,Stainless Steel
+Smartwatch XYZ,Wearable Electronics,N/A,199.99,XYZ Tech,Fitness tracking and notifications,In Stock,4.6,N/A,N/A,0.1,Black,Silicone
+Yoga Mat,Sports Equipment,N/A,30.00,Gaiam,Non-slip surface,In Stock,4.2,N/A,N/A,1.2,Blue,Rubber
+Car Wax,Automotive Accessories,N/A,18.00,Turtle Wax,High-shine car protection,In Stock,4.5,N/A,N/A,0.4,N/A,Liquid
+Face Cream,Cosmetics,N/A,55.00,La Mer,Anti-aging moisturizer,In Stock,4.8,N/A,N/A,0.1,White,Cream
+Building Blocks,Children's Toys,N/A,40.00,LEGO,Creative construction set,In Stock,4.7,N/A,N/A,1.5,Multi-color,Plastic
+Organic Coffee Beans,Food & Beverages,N/A,15.99,Starbucks,Fair trade dark roast,In Stock,4.6,N/A,N/A,0.5,N/A,Beans

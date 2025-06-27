@@ -1,21 +1,21 @@
-Product Name,Category,SKU,Retail Price,Vendor,Specs,Size,Model,Noise Level (dB),Screen Resolution,Weight (kg),Color,Material
-Wayfair Dining Table,Товары для Дома,EN_SKU_4_2,299.99,Wayfair,Solid wood construction,55x71x57,N/A,N/A,N/A,45.0,Brown,Wood
-Ashley Sofa Set,Мебель для Дома,EN_SKU_4_1,749.50,Ashley Furniture,Sectional with chaise,94x151x72,N/A,N/A,N/A,70.0,Grey,Fabric
-IKEA Malm Bed,Спальня Мебель,EN_SKU_4_0,199.00,IKEA,Platform bed,97x77x48,N/A,N/A,N/A,40.0,White,Laminated Particleboard
-Daikin Split AC,Климатическая Техника,EN_SKU_8_0,680.00,Daikin,Inverter technology,79x72x25,N/A,47 dB,N/A,20.9,White,Plastic
-Samsung Wind-Free,Кондиционеры,EN_SKU_8_1,920.00,Samsung,Wind-Free cooling,71x79x25,N/A,45 dB,N/A,39.6,Black,Plastic
-Drill Makita LXT Brushless,Электроинструмент,S2-DR02,175.00,Makita,Cordless and powerful,N/A,LXT18V,N/A,N/A,2.5,Blue,Metal/Plastic
-Drill Makita Electric Hand,Ручной Инструмент,S2-DR01,85.00,Makita,Lightweight and ergonomic,N/A,HandDrill,N/A,N/A,1.8,Green,Plastic
-Drill DeWalt XR Cordless,Инструменты,S3-DR01,210.00,DeWalt,Heavy-duty performance,N/A,XR20V,N/A,N/A,2.8,Yellow,Metal/Rubber
-Hammer,Строительный Инструмент,N/A,15.00,Stanley,Claw hammer,N/A,N/A,N/A,N/A,0.7,Steel/Wood,N/A
-Screwdriver Set,Наборы Инструментов,N/A,25.00,Craftsman,Precision set,N/A,N/A,N/A,N/A,0.5,Red,Steel/Plastic
-LG Gram 17,Ноутбуки,N/A,1500.00,LG,Lightweight professional laptop,N/A,17Z90P,N/A,2560x1600,1.35,Silver,Magnesium Alloy
-Bose QuietComfort,Наушники,N/A,299.00,Bose,Noise-cancelling,N/A,QC45,N/A,N/A,0.24,Black,Plastic/Leather
-Samsung Galaxy S22,Смартфоны,N/A,799.00,Samsung,Flagship Android phone,N/A,S22,N/A,2340x1080,0.167,Green,Glass/Aluminum
-Kitchen Mixer,Кухонные Приборы,N/A,120.00,KitchenAid,Stand mixer,N/A,Artisan,N/A,N/A,10.0,Red,Stainless Steel
-Vacuum Cleaner,Бытовые Приборы,N/A,250.00,Dyson,Cordless stick vacuum,N/A,V11,70 dB,N/A,3.0,Purple,Plastic
-Book: "War and Peace",Книги,N/A,20.00,Penguin Classics,Classic literature,N/A,N/A,N/A,N/A,1.2,N/A,Paper
-Running Shoes,Спортивная Обувь,N/A,110.00,Nike,Cushioned for comfort,N/A,Air Zoom,N/A,N/A,0.6,Blue,Mesh/Rubber
-Smart Doorbell,Умный Дом,N/A,150.00,Ring,Video doorbell,N/A,Video Doorbell 4,N/A,1080p,0.5,Black,Plastic
-Gaming Monitor,Игровые Мониторы,N/A,450.00,Dell,High refresh rate,N/A,Alienware 27,N/A,2560x1440,6.5,Black,Plastic
-Digital Camera,Фотоаппараты,N/A,600.00,Canon,Mirrorless camera,N/A,EOS M50 Mark II,N/A,N/A,0.387,Black,Plastic
+Product Name,Category,SKU,Price (USD),Manufacturer,Main Features,Dimensions (mm),Material,RAM (GB),Storage (GB),Screen Resolution,Noise Level (dB),Screen Size (in)
+HP Pavilion 15,Laptops,EN_SKU_3_0,850.00,HP,Fast processor,358x242x19,Metal/Plastic,16,512,1920x1080,N/A,15.6
+MacBook Air M2,Notebooks,EN_SKU_3_1,1199.00,Apple,Ultra-thin and powerful,304x215x11,Aluminum,8,256,2560x1600,N/A,13.6
+Dell XPS 13,Portable Computers,EN_SKU_3_2,1300.00,Dell,Compact design,296x199x15,Aluminum,16,512,1920x1200,N/A,13.4
+Sony Bravia OLED 55",OLED TVs,S2-TV01,1500.00,Sony,Vivid OLED display,1229x710x58,Glass/Plastic,N/A,N/A,3840x2160,N/A,55
+HP Spectre x360,Convertible Laptops,S2-PC01,1400.00,HP,2-in-1 convertible,306x194x16,Aluminum,16,1024,1920x1080,N/A,13.3
+TCL Roku 43",Smart Televisions,S2-TV02,320.00,TCL,Integrated Roku OS,970x567x80,Plastic,N/A,N/A,1920x1080,N/A,43
+Drill Makita LXT Brushless,Cordless Drills,S2-DR02,175.00,Makita,Cordless and powerful,200x80x250,Metal/Plastic,N/A,N/A,N/A,80,N/A
+Drill Makita Electric Hand,Electric Drills,S2-DR01,85.00,Makita,Lightweight and ergonomic,180x60x220,Plastic,N/A,N/A,N/A,75,N/A
+Drill DeWalt XR Cordless,Heavy Duty Tools,S3-DR01,210.00,DeWalt,Heavy-duty performance,210x85x260,Metal/Rubber,N/A,N/A,N/A,82,N/A
+Wayfair Dining Table,Dining Furniture,EN_SKU_4_2,299.99,Wayfair,Solid wood construction,1400x800x750,Wood,N/A,N/A,N/A,N/A,N/A
+Ashley Sofa Set,Living Room Sets,EN_SKU_4_1,749.50,Ashley Furniture,Sectional with chaise,2400x1600x900,Fabric,N/A,N/A,N/A,N/A,N/A
+IKEA Malm Bed,Bedroom Furniture,EN_SKU_4_0,199.00,IKEA,Minimalist design,2000x1600x300,Particleboard,N/A,N/A,N/A,N/A,N/A
+Nespresso Vertuo,Coffee Makers,EN_SKU_10_1,149.00,Nespresso,Single-serve brewing,140x240x310,Plastic,N/A,N/A,N/A,60,N/A
+DeLonghi Magnifica,Espresso Machines,EN_SKU_10_0,600.00,DeLonghi,Bean-to-cup coffee,238x430x350,Metal/Plastic,N/A,N/A,N/A,65,N/A
+Philips 3200 Series,Home Coffee Appliances,EN_SKU_10_2,450.00,Philips,Milk frother,247x366x434,Plastic,N/A,N/A,N/A,62,N/A
+Daikin Split AC,Air Conditioning Units,EN_SKU_8_0,680.00,Daikin,Inverter technology,770x280x225,Plastic,N/A,N/A,N/A,47,N/A
+Samsung Wind-Free,HVAC Systems,EN_SKU_8_1,920.00,Samsung,Wind-Free cooling,880x296x215,Plastic,N/A,N/A,N/A,45,N/A
+Hammer,Hand Tools Kit,SKU_1_9,15.00,Stanley,Claw hammer with comfortable grip,330x120x30,Steel/Wood,N/A,N/A,N/A,N/A,N/A
+Screwdriver Set,Tool Kits,SKU_1_10,25.00,Craftsman,Precision set for small repairs,200x100x40,Steel/Plastic,N/A,N/A,N/A,N/A,N/A
+LG DualCool,Household Appliances,EN_SKU_8_2,750.00,LG,Dual Inverter Compressor,998x345x210,Plastic,N/A,N/A,N/A,44,N/A
