@@ -1,24 +1,10 @@
-<<<<<<< HEAD
-streamlit
-pandas
-numpy
-scikit-learn
-DBSCAN
-torch
-sentence-transformers
-rapidfuzz
-matplotlib
-seaborn
-plotly
-openpyxl
-=======
 # Основные библиотеки
 streamlit
 pandas
 numpy
 scikit-learn
 DBSCAN
-torch 
+torch
 # Для работы с эмбеддингами
 sentence-transformers
 
@@ -32,4 +18,3 @@ plotly
 
 # Для чтения Excel
 openpyxl
->>>>>>> 7b0c043c1e6e1873898ad215b69140dfa337482e
