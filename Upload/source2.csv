@@ -1,0 +1,21 @@
+Product Name,Category,SKU,Price (USD),Manufacturer,Main Features,Dimensions (mm),Material,RAM (GB),Storage (GB),Screen Resolution,Noise Level (dB),Screen Size (in)
+HP Pavilion 15,Электроника,EN_SKU_3_0,850.00,HP,Fast processor,358x242x19,Metal/Plastic,16,512,1920x1080,N/A,15.6
+MacBook Air M2,Электронные Устройства,EN_SKU_3_1,1199.00,Apple,Ultra-thin and powerful,304x215x11,Aluminum,8,256,2560x1600,N/A,13.6
+Dell XPS 13,Компьютеры,EN_SKU_3_2,1300.00,Dell,Compact design,296x199x15,Aluminum,16,512,1920x1200,N/A,13.4
+Sony Bravia OLED 55",Телевизоры,S2-TV01,1500.00,Sony,Vivid OLED display,1229x710x58,Glass/Plastic,N/A,N/A,3840x2160,N/A,55
+HP Spectre x360,Ноутбуки,S2-PC01,1400.00,HP,2-in-1 convertible,306x194x16,Aluminum,16,1024,1920x1080,N/A,13.3
+TCL Roku 43",Смарт Телевизоры,S2-TV02,320.00,TCL,Integrated Roku OS,970x567x80,Plastic,N/A,N/A,1920x1080,N/A,43
+Drill Makita LXT Brushless,Электроинструмент,S2-DR02,175.00,Makita,Cordless and powerful,200x80x250,Metal/Plastic,N/A,N/A,N/A,80,N/A
+Drill Makita Electric Hand,Ручной Инструмент,S2-DR01,85.00,Makita,Lightweight and ergonomic,180x60x220,Plastic,N/A,N/A,N/A,75,N/A
+Drill DeWalt XR Cordless,Инструменты,S3-DR01,210.00,DeWalt,Heavy-duty performance,210x85x260,Metal/Rubber,N/A,N/A,N/A,82,N/A
+Wayfair Dining Table,Домашняя Мебель,EN_SKU_4_2,299.99,Wayfair,Solid wood construction,1400x800x750,Wood,N/A,N/A,N/A,N/A,N/A
+Ashley Sofa Set,Мебель для Гостиной,EN_SKU_4_1,749.50,Ashley Furniture,Sectional with chaise,2400x1600x900,Fabric,N/A,N/A,N/A,N/A,N/A
+IKEA Malm Bed,Мебель для Спальни,EN_SKU_4_0,199.00,IKEA,Minimalist design,2000x1600x300,Particleboard,N/A,N/A,N/A,N/A,N/A
+Nespresso Vertuo,Кофемашины,EN_SKU_10_1,149.00,Nespresso,Single-serve brewing,140x240x310,Plastic,N/A,N/A,N/A,60,N/A
+DeLonghi Magnifica,Кухонные Приборы,EN_SKU_10_0,600.00,DeLonghi,Bean-to-cup coffee,238x430x350,Metal/Plastic,N/A,N/A,N/A,65,N/A
+Philips 3200 Series,Кухонная Техника,EN_SKU_10_2,450.00,Philips,Milk frother,247x366x434,Plastic,N/A,N/A,N/A,62,N/A
+Daikin Split AC,Климатическая Техника,EN_SKU_8_0,680.00,Daikin,Inverter technology,770x280x225,Plastic,N/A,N/A,N/A,47,N/A
+Samsung Wind-Free,Кондиционеры,EN_SKU_8_1,920.00,Samsung,Wind-Free cooling,880x296x215,Plastic,N/A,N/A,N/A,45,N/A
+Hammer,Строительные Инструменты,SKU_1_9,15.00,Stanley,Claw hammer with comfortable grip,330x120x30,Steel/Wood,N/A,N/A,N/A,N/A,N/A
+Screwdriver Set,Ручные Инструменты,SKU_1_10,25.00,Craftsman,Precision set for small repairs,200x100x40,Steel/Plastic,N/A,N/A,N/A,N/A,N/A
+LG DualCool,Бытовая Техника,EN_SKU_8_2,750.00,LG,Dual Inverter Compressor,998x345x210,Plastic,N/A,N/A,N/A,44,N/A

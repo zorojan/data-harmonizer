@@ -1,0 +1,21 @@
+Product Name,Category,SKU,Retail Price,Vendor,Specs,Size,Model,Noise Level (dB),Screen Resolution,Weight (kg),Color,Material
+Wayfair Dining Table,Товары для Дома,EN_SKU_4_2,299.99,Wayfair,Solid wood construction,55x71x57,N/A,N/A,N/A,45.0,Brown,Wood
+Ashley Sofa Set,Мебель для Дома,EN_SKU_4_1,749.50,Ashley Furniture,Sectional with chaise,94x151x72,N/A,N/A,N/A,70.0,Grey,Fabric
+IKEA Malm Bed,Спальня Мебель,EN_SKU_4_0,199.00,IKEA,Platform bed,97x77x48,N/A,N/A,N/A,40.0,White,Laminated Particleboard
+Daikin Split AC,Климатическая Техника,EN_SKU_8_0,680.00,Daikin,Inverter technology,79x72x25,N/A,47 dB,N/A,20.9,White,Plastic
+Samsung Wind-Free,Кондиционеры,EN_SKU_8_1,920.00,Samsung,Wind-Free cooling,71x79x25,N/A,45 dB,N/A,39.6,Black,Plastic
+Drill Makita LXT Brushless,Электроинструмент,S2-DR02,175.00,Makita,Cordless and powerful,N/A,LXT18V,N/A,N/A,2.5,Blue,Metal/Plastic
+Drill Makita Electric Hand,Ручной Инструмент,S2-DR01,85.00,Makita,Lightweight and ergonomic,N/A,HandDrill,N/A,N/A,1.8,Green,Plastic
+Drill DeWalt XR Cordless,Инструменты,S3-DR01,210.00,DeWalt,Heavy-duty performance,N/A,XR20V,N/A,N/A,2.8,Yellow,Metal/Rubber
+Hammer,Строительный Инструмент,N/A,15.00,Stanley,Claw hammer,N/A,N/A,N/A,N/A,0.7,Steel/Wood,N/A
+Screwdriver Set,Наборы Инструментов,N/A,25.00,Craftsman,Precision set,N/A,N/A,N/A,N/A,0.5,Red,Steel/Plastic
+LG Gram 17,Ноутбуки,N/A,1500.00,LG,Lightweight professional laptop,N/A,17Z90P,N/A,2560x1600,1.35,Silver,Magnesium Alloy
+Bose QuietComfort,Наушники,N/A,299.00,Bose,Noise-cancelling,N/A,QC45,N/A,N/A,0.24,Black,Plastic/Leather
+Samsung Galaxy S22,Смартфоны,N/A,799.00,Samsung,Flagship Android phone,N/A,S22,N/A,2340x1080,0.167,Green,Glass/Aluminum
+Kitchen Mixer,Кухонные Приборы,N/A,120.00,KitchenAid,Stand mixer,N/A,Artisan,N/A,N/A,10.0,Red,Stainless Steel
+Vacuum Cleaner,Бытовые Приборы,N/A,250.00,Dyson,Cordless stick vacuum,N/A,V11,70 dB,N/A,3.0,Purple,Plastic
+Book: "War and Peace",Книги,N/A,20.00,Penguin Classics,Classic literature,N/A,N/A,N/A,N/A,1.2,N/A,Paper
+Running Shoes,Спортивная Обувь,N/A,110.00,Nike,Cushioned for comfort,N/A,Air Zoom,N/A,N/A,0.6,Blue,Mesh/Rubber
+Smart Doorbell,Умный Дом,N/A,150.00,Ring,Video doorbell,N/A,Video Doorbell 4,N/A,1080p,0.5,Black,Plastic
+Gaming Monitor,Игровые Мониторы,N/A,450.00,Dell,High refresh rate,N/A,Alienware 27,N/A,2560x1440,6.5,Black,Plastic
+Digital Camera,Фотоаппараты,N/A,600.00,Canon,Mirrorless camera,N/A,EOS M50 Mark II,N/A,N/A,0.387,Black,Plastic
