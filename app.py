@@ -38,7 +38,7 @@ if st.session_state.get('use_demo', False):
         st.markdown(f"**Demo file: {os.path.basename(demo_files[i])}**")
         st.dataframe(df_demo)        
         columns = list(df_demo.columns)
-        # Try to auto-detect columns
+        # Try to auto-detect columns  
         def find_col(targets):
             for t in targets:
                 for c in columns:
