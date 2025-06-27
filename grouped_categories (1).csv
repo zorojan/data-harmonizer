@@ -1,0 +1,16 @@
+product_name,source_file,category,SKU,"Мощность, Вт",Вес,Цвет,Output Power,Weight,Color,Масса,Цвет изделия,Power (W),Net Weight,Body Color,Engine Output,Gross Weight,Paint Color,group_name
+Дрель Bosch GSB 13 RE,test_products_source_1.csv,Дрели,SKU_00,883.0,2.25 кг,Blue,,,,,,,,,,,,Дрели
+Дрель Makita HP1640,test_products_source_1.csv,Дрели,SKU_01,776.0,3.08 кг,Красный,,,,,,,,,,,,Дрели
+Дрель DeWalt DWD024,test_products_source_1.csv,Дрели,SKU_02,658.0,3.23 кг,Blue,,,,,,,,,,,,Дрели
+Bosch Drill GSB 13,test_products_source_2.csv,Drills,SKU_10,,,,833.0,1.88 кг,Красный,,,,,,,,,Дрели
+Makita Drill HP1640,test_products_source_2.csv,Drills,SKU_11,,,,697.0,2.51 кг,Yellow,,,,,,,,,Дрели
+DeWalt Drill DWD024,test_products_source_2.csv,Drills,SKU_12,,,,489.0,3.25 кг,Red,,,,,,,,,Дрели
+Дрель Интерскол ДУ-13,test_products_source_3.csv,Электроинструмент,SKU_20,,,,,,,3.69 кг,Красный,,,,,,,Дрели
+Дрель Зубр ДУ-580,test_products_source_3.csv,Электроинструмент,SKU_21,,,,,,,2.29 кг,Жёлтый,,,,,,,Дрели
+Дрель Patriot FD,test_products_source_3.csv,Электроинструмент,SKU_22,,,,,,,2.36 кг,Blue,,,,,,,Дрели
+Electric Drill A1,test_products_source_4.csv,Power Tools,SKU_30,,,,,,,,,815.0,2.92 кг,Blue,,,,Power Tools
+Electric Drill B2,test_products_source_4.csv,Power Tools,SKU_31,,,,,,,,,540.0,2.33 кг,Жёлтый,,,,Power Tools
+Electric Drill C3,test_products_source_4.csv,Power Tools,SKU_32,,,,,,,,,668.0,2.71 кг,Синий,,,,Power Tools
+Hammer Drill Pro,test_products_source_5.csv,Electric Drills,SKU_40,,,,,,,,,,,,501.0,2.61 кг,Красный,Дрели
+Impact Drill Ultra,test_products_source_5.csv,Electric Drills,SKU_41,,,,,,,,,,,,404.0,2.29 кг,Yellow,Дрели
+Rotary Drill X,test_products_source_5.csv,Electric Drills,SKU_42,,,,,,,,,,,,780.0,1.84 кг,Blue,Дрели
