@@ -201,7 +201,7 @@ if df is not None:
                         if st.button("Skip", key=f"skip_{cluster_id}"):
                             st.session_state['wizard_index'] += 1
                             st.experimental_rerun()
-                    st.info("Step {}/{}".format(idx+1, len(clusters)))
+                    st.info("Step {}/{}".format(idx+1, len(clusters))) 
                 else:
                     st.success("Wizard complete! Review or fix results below.")
                     if st.button("Fix Results (Apply Renames)", key="fix_results_btn"):
