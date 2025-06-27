@@ -1,20 +1,12 @@
-# Основные библиотеки
 streamlit
 pandas
 numpy
 scikit-learn
 DBSCAN
 torch
-# Для работы с эмбеддингами
 sentence-transformers
-
-# Быстрое текстовое сравнение
 rapidfuzz
-
-# Для визуализаций (опционально)
 matplotlib
 seaborn
 plotly
-
-# Для чтения Excel
 openpyxl
