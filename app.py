@@ -154,10 +154,11 @@ if df is not None:
     )
     if model_name == "sentence-transformers/distiluse-base-multilingual-cased":
         try:
-            model = SentenceTransformer(model_name, device="cpu")
-            # 4. Generate embeddings
-            categories = df[category_col].astype(str).unique()
-            embeddings = model.encode(categories, show_progress_bar=True)
+            with st.spinner("Loading model and generating embeddings. This may take a few minutes on first run..."):
+                model = SentenceTransformer(model_name, device="cpu")
+                categories = df[category_col].astype(str).unique()
+                embeddings = model.encode(categories, show_progress_bar=False)
+                st.write("Embeddings shape:", np.array(embeddings).shape)
             # 5. DBSCAN parameters (only show if correct model is selected)
             eps = st.slider("DBSCAN eps (distance threshold)", 0.1, 1.0, 0.4, 0.05)
             min_samples = st.slider("DBSCAN min_samples", 1, 5, 2)
@@ -188,23 +189,20 @@ if df is not None:
                     st.markdown(f"### Cluster {cluster_id}")
                     st.write(cluster_cats)
                     colA, colB = st.columns(2)
-                    with colA:
-                        if st.button("Approve (rename all to first)", key=f"approve_{cluster_id}"):
-                            # Approve: rename all in this cluster to first value
-                            group_name = cluster_cats[0]
-                            for cat in cluster_cats:
-                                renames[cat] = group_name
-                            approved.add(cluster_id)
-                            st.session_state['wizard_index'] += 1
-                            st.experimental_rerun()
-                    with colB:
-                        if st.button("Skip", key=f"skip_{cluster_id}"):
-                            st.session_state['wizard_index'] += 1
-                            st.experimental_rerun()
+                    approve_btn = colA.button("Approve (rename all to first)", key=f"approve_{cluster_id}")
+                    skip_btn = colB.button("Skip", key=f"skip_{cluster_id}")
+                    if approve_btn:
+                        group_name = cluster_cats[0]
+                        for cat in cluster_cats:
+                            renames[cat] = group_name
+                        approved.add(cluster_id)
+                        st.session_state['wizard_index'] += 1
+                    if skip_btn:
+                        st.session_state['wizard_index'] += 1
                     st.info("Step {}/{}".format(idx+1, len(clusters))) 
                 else:
-                    st.success("Wizard complete! Review or fix results below.")
-                    if st.button("Fix Results (Apply Renames)", key="fix_results_btn"):
+                    st.success("Wizard complete! Review or join approved clusters below.")
+                    if st.button("Join Approved Clusters", key="join_approved_btn"):
                         # Apply renames to df
                         group_table = df_clusters.copy()
                         group_table["group_name"] = group_table["original_category"].map(lambda x: renames.get(x, x))
@@ -226,7 +224,7 @@ if df is not None:
                         st.info(f"Grouped table automatically saved to: {save_path}")
                     if st.button("Restart Wizard", key="restart_wizard"):
                         st.session_state['wizard_reset'] = True
-                        st.experimental_rerun()
+                        st.session_state['wizard_index'] = 0
             else:
                 # fallback to old cluster join UI if not in wizard mode
                 if 'fixed_clusters' not in st.session_state:
