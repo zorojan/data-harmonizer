@@ -186,8 +186,13 @@ if df is not None:
                 if idx < len(clusters):
                     cluster_id = clusters[idx]
                     cluster_cats = df_clusters[df_clusters["cluster"] == cluster_id]["original_category"].tolist()
-                    st.markdown(f"### Cluster {cluster_id}")
-                    st.write(cluster_cats)
+                    # Mark cluster -1 as red (danger), others as info
+                    if cluster_id == -1:
+                        st.markdown(f"### <span style='color:#dc3545;'>Cluster {cluster_id}</span>", unsafe_allow_html=True)
+                        st.json(cluster_cats)
+                    else:
+                        st.markdown(f"### <span style='color:#0dcaf0;'>Cluster {cluster_id}</span>", unsafe_allow_html=True)
+                        st.json(cluster_cats)
                     colA, colB = st.columns(2)
                     approve_btn = colA.button("Approve (rename all to first)", key=f"approve_{cluster_id}")
                     skip_btn = colB.button("Skip", key=f"skip_{cluster_id}")
@@ -232,8 +237,18 @@ if df is not None:
                 for cluster_id in sorted(df_clusters["cluster"].unique()):
                     cluster_key = f"cluster_{cluster_id}_fixed"
                     is_fixed = cluster_id in st.session_state['fixed_clusters']
+                    # Mark cluster -1 as red (danger), others as info, fixed as green (success)
                     with st.expander(f"Cluster {cluster_id}"):
-                        st.write(df_clusters[df_clusters["cluster"] == cluster_id]["original_category"].tolist())
+                        cluster_cats = df_clusters[df_clusters["cluster"] == cluster_id]["original_category"].tolist()
+                        if cluster_id == -1:
+                            st.error('Ungrouped categories')
+                            st.json(cluster_cats)
+                        elif is_fixed:
+                            st.success("Fixed cluster")
+                            st.json(cluster_cats)
+                        else:
+                            st.info("Cluster categories")
+                            st.json(cluster_cats)
                         if manual_join:
                             if is_fixed:
                                 st.success("Joined (fixed)")
