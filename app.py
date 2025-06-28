@@ -73,6 +73,9 @@ if st.session_state.get('use_demo', False):
                 df_selected['SKU'] = df_selected['product_name']
         selected_dfs.append(df_selected)
     df = pd.concat(selected_dfs, ignore_index=True)
+    # Always add group_name column at start
+    if 'group_name' not in df.columns:
+        df['group_name'] = df['category'] if 'category' in df.columns else df.iloc[:,0]
     st.success("Demo data loaded and columns standardized.")
     st.dataframe(df)  # Show loaded demo table view
     # Reset demo flag if user uploads files
@@ -127,6 +130,9 @@ elif uploaded_files:
                 temp_df['SKU'] = temp_df['product_name']
         dfs.append(temp_df)
     df = pd.concat(dfs, ignore_index=True)
+    # Always add group_name column at start
+    if 'group_name' not in df.columns:
+        df['group_name'] = df['category'] if 'category' in df.columns else df.iloc[:,0]
     st.success("Uploaded files loaded and columns standardized.")
     st.dataframe(df)
 else:
@@ -154,127 +160,132 @@ if df is not None:
     )
     if model_name == "sentence-transformers/distiluse-base-multilingual-cased":
         try:
+            # --- Iterative clustering: use current_df for all rounds ---
+            if 'current_df' not in st.session_state:
+                st.session_state['current_df'] = df.copy()
+            if 'fixed_clusters' not in st.session_state:
+                st.session_state['fixed_clusters'] = set()
+            if 'manual_join_selected' not in st.session_state:
+                st.session_state['manual_join_selected'] = set()
+
+            current_df = st.session_state['current_df']
+            fixed_clusters = st.session_state['fixed_clusters']
+            manual_join_selected = st.session_state['manual_join_selected']
+
+
+            # --- Exclude fixed clusters from clustering ---
+            # 1. Split current_df into fixed and unfixed parts
+            fixed_group_names = st.session_state.get('fixed_group_names', set())
+            if 'group_name' in current_df.columns:
+                fixed_mask = current_df['group_name'].isin(fixed_group_names)
+                unfixed_df = current_df[~fixed_mask].copy()
+                fixed_df = current_df[fixed_mask].copy()
+                categories = unfixed_df['group_name'].astype(str).unique()
+            else:
+                fixed_mask = current_df[category_col].isin(fixed_group_names)
+                unfixed_df = current_df[~fixed_mask].copy()
+                fixed_df = current_df[fixed_mask].copy()
+                categories = unfixed_df[category_col].astype(str).unique()
+
             with st.spinner("Loading model and generating embeddings. This may take a few minutes on first run..."):
                 model = SentenceTransformer(model_name, device="cpu")
-                categories = df[category_col].astype(str).unique()
                 embeddings = model.encode(categories, show_progress_bar=False)
                 st.write("Embeddings shape:", np.array(embeddings).shape)
-            # 5. DBSCAN parameters (only show if correct model is selected)
-            eps = st.slider("DBSCAN eps (distance threshold)", 0.1, 1.0, 0.4, 0.05)
-            min_samples = st.slider("DBSCAN min_samples", 1, 5, 2)
-            # 6. Cluster
+
+            eps = st.slider("DBSCAN eps (distance threshold)", 0.1, 1.0, 0.4, 0.05, key="eps_main")
+            min_samples = st.slider("DBSCAN min_samples", 1, 5, 2, key="min_samples_main")
             clustering = DBSCAN(eps=eps, min_samples=min_samples, metric="cosine").fit(embeddings)
             df_clusters = pd.DataFrame({
                 "original_category": categories,
                 "cluster": clustering.labels_
             })
-            # 7. Show clusters
-            manual_join = st.checkbox("Manually join clusters (wizard mode)", key="manual_join")
-            if manual_join:
-                if 'wizard_clusters' not in st.session_state or st.session_state.get('wizard_reset', False):
-                    st.session_state['wizard_clusters'] = sorted(df_clusters["cluster"].unique())
-                    st.session_state['wizard_index'] = 0
-                    st.session_state['wizard_approved'] = set()
-                    st.session_state['wizard_renames'] = {}
-                    st.session_state['wizard_reset'] = False
 
-                clusters = st.session_state['wizard_clusters']
-                idx = st.session_state['wizard_index']
-                approved = st.session_state['wizard_approved']
-                renames = st.session_state['wizard_renames']
+            st.markdown("#### Review clusters and select those you want to join (rename all to first):")
+            # Show fixed clusters first
+            if not fixed_df.empty:
+                st.markdown("---")
+                st.markdown("#### Fixed clusters (excluded from further clustering):")
+                for fixed_val in sorted(fixed_df['group_name'].unique() if 'group_name' in fixed_df.columns else fixed_df[category_col].unique()):
+                    cluster_cats = fixed_df[fixed_df['group_name'] == fixed_val]['group_name'].unique() if 'group_name' in fixed_df.columns else fixed_df[fixed_df[category_col] == fixed_val][category_col].unique()
+                    with st.expander(f"Fixed cluster: {fixed_val}"):
+                        st.success("Fixed cluster")
+                        st.success(list(cluster_cats))
 
-                if idx < len(clusters):
-                    cluster_id = clusters[idx]
-                    cluster_cats = df_clusters[df_clusters["cluster"] == cluster_id]["original_category"].tolist()
-                    # Mark cluster -1 as red (danger), others as info
-                    if cluster_id == -1:
-                        st.markdown(f"### <span style='color:#dc3545;'>Cluster {cluster_id}</span>", unsafe_allow_html=True)
-                        st.json(cluster_cats)
+            # Now show clusters for manual join (only for unfixed)
+            for cluster_id in sorted(df_clusters["cluster"].unique()):
+                cluster_key = f"cluster_{cluster_id}_fixed"
+                is_fixed = cluster_id in fixed_clusters
+                cluster_cats = df_clusters[df_clusters["cluster"] == cluster_id]["original_category"].tolist()
+                with st.expander(f"Cluster {cluster_id}"):
+                    st.json(cluster_cats)
+                    checked = st.checkbox(f"Join this cluster (rename all to '{cluster_cats[0]}')", key=f"join_checkbox_{cluster_id}", value=(cluster_id in manual_join_selected))
+                    if checked:
+                        manual_join_selected.add(cluster_id)
                     else:
-                        st.markdown(f"### <span style='color:#0dcaf0;'>Cluster {cluster_id}</span>", unsafe_allow_html=True)
-                        st.json(cluster_cats)
-                    colA, colB = st.columns(2)
-                    approve_btn = colA.button("Approve (rename all to first)", key=f"approve_{cluster_id}")
-                    skip_btn = colB.button("Skip", key=f"skip_{cluster_id}")
-                    if approve_btn:
-                        group_name = cluster_cats[0]
-                        for cat in cluster_cats:
-                            renames[cat] = group_name
-                        approved.add(cluster_id)
-                        st.session_state['wizard_index'] += 1
-                    if skip_btn:
-                        st.session_state['wizard_index'] += 1
-                    st.info("Step {}/{}".format(idx+1, len(clusters))) 
-                else:
-                    st.success("Wizard complete! Review or join approved clusters below.")
-                    if st.button("Join Approved Clusters", key="join_approved_btn"):
-                        # Apply renames to df
-                        group_table = df_clusters.copy()
-                        group_table["group_name"] = group_table["original_category"].map(lambda x: renames.get(x, x))
-                        grouped_df = df.merge(group_table[["original_category", "group_name"]], left_on=category_col, right_on="original_category", how="left")
-                        if group_only_diff_sources and "source_file" in grouped_df.columns:
-                            grouped_df['source_file_count'] = grouped_df.groupby('group_name')['source_file'].transform('nunique')
-                            grouped_df = grouped_df[grouped_df['source_file_count'] > 1].drop(columns=['source_file_count'])
-                        if "original_category" in grouped_df.columns:
-                            grouped_df = grouped_df.drop(columns=["original_category"])
-                        st.dataframe(grouped_df)
-                        st.download_button(
-                            "Download grouped table CSV",
-                            grouped_df.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig"),
-                            "grouped_categories.csv",
-                            "text/csv"
-                        )
-                        save_path = os.path.join(os.getcwd(), "grouped_categories.csv")
-                        grouped_df.to_csv(save_path, index=False, encoding="utf-8-sig")
-                        st.info(f"Grouped table automatically saved to: {save_path}")
-                    if st.button("Restart Wizard", key="restart_wizard"):
-                        st.session_state['wizard_reset'] = True
-                        st.session_state['wizard_index'] = 0
-            else:
-                # fallback to old cluster join UI if not in wizard mode
-                if 'fixed_clusters' not in st.session_state:
-                    st.session_state['fixed_clusters'] = set()
-                for cluster_id in sorted(df_clusters["cluster"].unique()):
-                    cluster_key = f"cluster_{cluster_id}_fixed"
-                    is_fixed = cluster_id in st.session_state['fixed_clusters']
-                    # Mark cluster -1 as red (danger), others as info, fixed as green (success)
-                    with st.expander(f"Cluster {cluster_id}"):
-                        cluster_cats = df_clusters[df_clusters["cluster"] == cluster_id]["original_category"].tolist()
-                        if cluster_id == -1:
-                            st.error('Ungrouped categories')
-                            st.json(cluster_cats)
-                        elif is_fixed:
-                            st.success("Fixed cluster")
-                            st.json(cluster_cats)
-                        else:
-                            st.info("Cluster categories")
-                            st.json(cluster_cats)
-                        if manual_join:
-                            if is_fixed:
-                                st.success("Joined (fixed)")
-                            else:
-                                if st.button(f"Join this cluster", key=cluster_key):
-                                    st.session_state['fixed_clusters'].add(cluster_id)
-                                    st.rerun()
+                        manual_join_selected.discard(cluster_id)
+
+            colA, colB = st.columns([1,1])
+            apply_btn = colA.button("Apply Manual Joins", key="apply_manual_joins_batch")
+            rerun_btn = colB.button("Re-run clustering on current table", key="rerun_clustering")
+
+            if apply_btn:
+                renames = {}
+                fixed_group_names = set()
+                for cluster_id in manual_join_selected:
+                    cluster_cats = df_clusters[df_clusters["cluster"] == cluster_id]["original_category"].tolist()
+                    group_name = cluster_cats[0]
+                    for cat in cluster_cats:
+                        renames[cat] = group_name
+                        fixed_group_names.add(group_name)
+                # Сохраняем зафиксированные group_name в session_state
+                st.session_state['fixed_group_names'] = st.session_state.get('fixed_group_names', set()) | fixed_group_names
+                # Remove group_name if exists to avoid merge conflicts
+                if 'group_name' in current_df.columns:
+                    current_df = current_df.drop(columns=['group_name'])
+                group_table = df_clusters.copy()
+                group_table["group_name"] = group_table["original_category"].map(lambda x: renames.get(x, x))
+                new_df = current_df.merge(group_table[["original_category", "group_name"]], left_on=(category_col), right_on="original_category", how="left")
+                # Only filter by source_file if group_name was actually created
+                if group_only_diff_sources and "source_file" in new_df.columns and "group_name" in new_df.columns:
+                    new_df['source_file_count'] = new_df.groupby('group_name')['source_file'].transform('nunique')
+                    new_df = new_df[new_df['source_file_count'] > 1].drop(columns=['source_file_count'])
+                if "original_category" in new_df.columns:
+                    new_df = new_df.drop(columns=["original_category"])
+                st.session_state['current_df'] = new_df
+                st.session_state['manual_join_selected'] = set()
+                st.success("Manual joins applied. You can now re-run clustering on the updated table.")
+                # Show only key columns in intermediate table
+                show_cols = [col for col in ['group_name', 'category', 'product_name', 'SKU', 'source_file'] if col in new_df.columns]
+                st.dataframe(new_df[show_cols])
+
+            if rerun_btn:
+                st.session_state['manual_join_selected'] = set()
+                st.rerun()
             # 8. Fix groups as parent
             if st.button("Fix groups as parent"):
                 group_table = df_clusters.copy()
                 group_table["group_name"] = group_table.groupby("cluster")['original_category'].transform('first')
                 grouped_df = df.merge(group_table[["original_category", "group_name"]], left_on=category_col, right_on="original_category", how="left")
-                if group_only_diff_sources and "source_file" in grouped_df.columns:
-                    # Оставляем только те группы, где source_file отличается
-                    grouped_df['source_file_count'] = grouped_df.groupby('group_name')['source_file'].transform('nunique')
-                    grouped_df = grouped_df[grouped_df['source_file_count'] > 1].drop(columns=['source_file_count'])
-                if "original_category" in grouped_df.columns:
-                    grouped_df = grouped_df.drop(columns=["original_category"])
-                st.dataframe(grouped_df)
+                # Если group_name не был создан (все значения NaN), создаём его из category
+                if "group_name" not in grouped_df.columns or grouped_df["group_name"].isnull().all():
+                    grouped_df["group_name"] = grouped_df[category_col]
+                # Если есть group_name_y, используем его как основной group_name
+                if "group_name_y" in grouped_df.columns:
+                    grouped_df["group_name"] = grouped_df["group_name_y"].combine_first(grouped_df["group_name_x"] if "group_name_x" in grouped_df.columns else grouped_df[category_col])
+                # Удаляем только служебные столбцы, если есть
+                for col in ["original_category", "group_name_x", "group_name_y"]:
+                    if col in grouped_df.columns:
+                        grouped_df = grouped_df.drop(columns=[col])
+                # Предпросмотр финальной таблицы (первые 20 строк)
+                st.markdown("#### Предпросмотр финального файла (первые 20 строк):")
+                st.dataframe(grouped_df.head(20))
+                # Кнопка скачивания
                 st.download_button(
                     "Download grouped table CSV",
                     grouped_df.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig"),
                     "grouped_categories.csv",
                     "text/csv"
                 )
-                # Always save grouped table to app folder after fixing groups
                 import os
                 save_path = os.path.join(os.getcwd(), "grouped_categories.csv")
                 grouped_df.to_csv(save_path, index=False, encoding="utf-8-sig")

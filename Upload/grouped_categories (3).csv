@@ -1,0 +1,17 @@
+﻿category,product_name,Screen Resolution,Screen Size,Panel Type,source_file,SKU,Group,Display,Diagonal,Panel,Type,Model,Resolution,Screen,Screen Tech,Device Category,Model Name,Image Quality,Screen Inches,group_name_x,group_name_y,group_name
+TVs,"Samsung QLED 55""",4K,55 inches,QLED,source_1r.csv,"Samsung QLED 55""",,,,,,,,,,,,,,TVs,TVs,TVs
+TVs,"LG OLED 48""",4K UHD,"48""",OLED,source_1r.csv,"LG OLED 48""",,,,,,,,,,,,,,TVs,TVs,TVs
+Laptops,Dell Inspiron 15,1920x1080,"15.6""",IPS,source_1r.csv,Dell Inspiron 15,,,,,,,,,,,,,,Laptops,TVs,Laptops
+Laptops,HP Pavilion 14,Full HD,14 inches,VA,source_1r.csv,HP Pavilion 14,,,,,,,,,,,,,,Laptops,TVs,Laptops
+,Sony Bravia 50,,,,source_2r.csv,Sony Bravia 50,TV,Ultra HD,50'',LED,,,,,,,,,,,,
+,Philips Ambilight 65,,,,source_2r.csv,Philips Ambilight 65,TV,4K,65 inches,LED,,,,,,,,,,,,
+,Lenovo IdeaPad 5,,,,source_2r.csv,Lenovo IdeaPad 5,Laptop,Full HD,15.6 in,IPS,,,,,,,,,,,,
+,Asus VivoBook 17,,,,source_2r.csv,Asus VivoBook 17,Laptop,1600x900,17.3 inches,TN,,,,,,,,,,,,
+,,,,,source_3r.csv,,,,,,TV,Toshiba 43U,3840x2160,43 in,LED,,,,,,,
+,,,,,source_3r.csv,,,,,,TV,Panasonic Smart 60,4K,60 inch,OLED,,,,,,,
+,,,,,source_3r.csv,,,,,,Laptop,Acer Swift 3,1920 x 1080,"14""",IPS,,,,,,,
+,,,,,source_3r.csv,,,,,,Laptop,MSI Modern 14,FullHD,"14""",IPS,,,,,,,
+,,,,LED,source_4r.csv,,,,,,,,,,,TV,Hisense 40A6,FullHD,40.0,,,
+,,,,QLED,source_4r.csv,,,,,,,,,,,TV,Sharp 55DN,4K HDR,55.0,,,
+,,,,IPS,source_4r.csv,,,,,,,,,,,Laptop,Huawei MateBook D,Full HD,15.6,,,
+,,,,Retina IPS,source_4r.csv,,,,,,,,,,,Laptop,Apple MacBook Air,Retina,13.3,,,
