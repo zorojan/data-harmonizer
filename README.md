@@ -1,80 +1,96 @@
 
+
 # Data Harmonizer
 
-**Data Harmonizer** — интеллектуальная система для глубокой обработки товарных данных, объединяющая информацию из разных источников в единый, стандартизированный формат.
-Приложение включает три ключевых модуля:
+**Data Harmonizer** is an intelligent system for advanced product data processing, merging information from multiple sources into a unified, standardized format.
+The application currently includes three core modules:
 
-1. **Автоматическая кластеризация** — объединение категорий с помощью Sentence Transformers (DBSCAN по эмбеддингам).
-2. **Ручное объединение** — пользователь может вручную объединять и фиксировать кластеры.
-3. **Record Linkage** — гибкие методы сопоставления (RapidFuzz, Product Overlap, Hybrid).
+1. **Automatic Category Clustering** — merge categories using Sentence Transformers (DBSCAN on embeddings).
+2. **Manual Merging** — users can manually join and fix clusters.
+3. **Record Linkage** — flexible matching methods (RapidFuzz, Product Overlap, Hybrid).
 
 ---
 
-Этот проект — интерактивное веб-приложение на Streamlit для объединения и кластеризации товарных категорий из разных источников. Поддерживаются автоматическое (на основе эмбеддингов) и ручное (пользовательское) объединение, а также пошаговая итеративная обработка.
+**Planned modules:**
 
-## Возможности
+- **Attribute Harmonization:** unify and merge product attributes/properties from different sources into a single schema.
+- **Unit Normalization:** convert all property values to a unified standard of measurement, so that attributes can be used as filters in e-commerce and product search.
 
-- Загрузка нескольких CSV-файлов с товарами из разных источников
-- Автоматическое объединение категорий с помощью Sentence Transformers (DBSCAN по эмбеддингам)
-- Ручное объединение кластеров: выбор и фиксация групп пользователем
-- Итеративная обработка: после каждого шага можно повторно кластеризовать и объединять
-- Поддержка ручных методов (Record Linkage, RapidFuzz, Product Overlap, Hybrid)
-- Просмотр промежуточных и финальных таблиц, предпросмотр перед скачиванием
-- Скачивание итоговой таблицы с сохранением всех исходных столбцов, включая `source_file`
-- Удобный и быстрый интерфейс для работы с большими таблицами
+---
 
-## Как использовать
+This project is an interactive Streamlit web app for category similarity, clustering, and merging of product data from multiple sources. Both automatic (embedding-based) and manual (user-driven) merging are supported, with an iterative workflow.
 
-1. **Запуск приложения:**
+
+## Features
+
+- Upload multiple CSV files with product data from different sources
+- Automatic category merging using Sentence Transformers (DBSCAN on embeddings)
+- Manual cluster merging: select and fix groups as needed
+- Iterative workflow: re-cluster and merge as many times as needed
+- Support for manual methods (Record Linkage, RapidFuzz, Product Overlap, Hybrid)
+- Preview intermediate and final tables before download
+- Download the final grouped table with all original columns, including `source_file`
+- Fast and user-friendly interface for large datasets
+
+
+## How to Use
+
+1. **Run the app:**
    ```
    streamlit run app.py
    ```
-2. **Загрузка данных:** 
-   - Загрузите свои CSV-файлы или используйте демо-данные.
-   - Укажите, какие столбцы соответствуют названию товара, категории и SKU.
-3. **Настройка и кластеризация:**
-   - Выберите метод объединения (эмбеддинги или Record Linkage).
-   - Настройте параметры кластеризации (eps, min_samples, порог схожести и др.).
-   - Объединяйте кластеры вручную, фиксируйте группы.
-   - Повторяйте шаги до достижения нужного результата. 
-4. **Скачивание результата:**
-   - Предпросмотрите финальную таблицу.
-   - Скачайте итоговый CSV-файл для дальнейшей работы.
+2. **Upload data:**
+   - Upload your own CSV files or use the provided demo data.
+   - Specify which columns correspond to product name, category, and SKU.
+3. **Configure and cluster:**
+   - Choose the merging method (embeddings or Record Linkage).
+   - Adjust clustering parameters (eps, min_samples, similarity threshold, etc.).
+   - Merge clusters manually and fix groups as needed.
+   - Repeat steps as many times as necessary.
+4. **Download results:**
+   - Preview the final grouped table.
+   - Download the resulting CSV file for further use.
 
-## Требования
+
+## Requirements
 
 - Python 3.8+
-- См. `requirements.txt` для установки зависимостей:
+- See `requirements.txt` for dependencies:
   ```
   pip install -r requirements.txt
   ```
 
-## Структура проекта
 
-- `app.py` — основной код Streamlit-приложения
-- `requirements.txt` — зависимости Python
-- `Upload/` — демо-данные и примеры исходных файлов
-- `grouped_categories.csv` — итоговый файл после объединения
+## Project Structure
 
-## Пример использования
+- `app.py` — main Streamlit app code
+- `requirements.txt` — Python dependencies
+- `Upload/` — demo data and example source files
+- `grouped_categories.csv` — resulting grouped file
 
-![Скриншот интерфейса](screenshot.png)  
-*Загрузите файлы, настройте параметры, объединяйте категории и скачивайте результат!*
 
-## 🧪 Демо-пример
+## Example
 
-Вы можете протестировать прототип Data Harmonizer онлайн:  
-👉 [Открыть демо](https://data-harmonizer-hr9duerg436ujhogcljjuq.streamlit.app/)
+![App screenshot](screenshot.png)
+*Upload files, configure parameters, merge categories, and download the result!*
+
+
+## 🧪 Demo
+
+You can try the Data Harmonizer prototype online:  
+👉 [Open demo](https://data-harmonizer-hr9duerg436ujhogcljjuq.streamlit.app/)
 
 ---
 
-## 🤝 Поддержка разработки
 
-Разработка и реализация прототипа были осуществлены при поддержке команды [**SDH.Global**](https://sdh.global) — экспертов в области DevOps, SaaS и кастомных AI-решений.
+## 🤝 Development Support
 
-Если вы хотите превратить эту идею в полноценный коммерческий продукт, рекомендуем обратиться в компанию **SDH.Global** для профессиональной помощи в разработке и масштабировании.
+The prototype was developed and implemented with the support of the [**SDH.Global**](https://sdh.global) team — experts in DevOps, SaaS, and custom AI solutions.
+
+If you want to turn this idea into a full-fledged commercial product, we recommend contacting **SDH.Global** for professional development and scaling assistance.
 
 
-## Лицензия
+
+## License
 
 MIT License
