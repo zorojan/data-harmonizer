@@ -1,0 +1,381 @@
+{
+    "client": [
+        {
+            "name": "firstname",
+            "value": "Hasmik",
+            "purpose": "Billing"
+        },
+        {
+            "name": "lastname",
+            "value": "Khechikyan",
+            "purpose": "Billing"
+        },
+        {
+            "name": "phonenumber",
+            "value": "+374 91066063",
+            "purpose": "Billing"
+        },
+        {
+            "name": "email",
+            "value": "mshakutayin@gmail.com",
+            "purpose": "Billing"
+        },
+        {
+            "name": "companyname",
+            "value": "Cultural Society NGO",
+            "purpose": "Billing"
+        },
+        {
+            "name": "address1",
+            "value": "Baghramyan 3",
+            "purpose": "Billing"
+        },
+        {
+            "name": "address2",
+            "value": "Baghramyan 3",
+            "purpose": "Billing"
+        },
+        {
+            "name": "city",
+            "value": "Yerevan",
+            "purpose": "Billing"
+        },
+        {
+            "name": "state",
+            "value": "Yerevan",
+            "purpose": "Billing"
+        },
+        {
+            "name": "postcode",
+            "value": "0001",
+            "purpose": "Billing"
+        },
+        {
+            "name": "country",
+            "value": "AM",
+            "purpose": "Billing"
+        },
+        {
+            "name": "type",
+            "value": null,
+            "purpose": "Billing"
+        },
+        {
+            "name": "passport",
+            "value": "",
+            "purpose": "Billing"
+        },
+        {
+            "name": "tin",
+            "value": "00116321",
+            "purpose": "Billing"
+        },
+        {
+            "name": "additioninformation",
+            "value": "cultural.am +Hosting3000Mb",
+            "purpose": "Billing"
+        },
+        {
+            "name": "2faenable",
+            "value": [
+                ""
+            ],
+            "purpose": ""
+        },
+        {
+            "name": "2fasecret",
+            "value": "",
+            "purpose": "If Two-Factor is enabled, enter 16-chars (letters\/digits) secret code to use in Google Authenticator App."
+        },
+        {
+            "name": "telegramnotifications",
+            "value": [
+                ""
+            ],
+            "purpose": ""
+        },
+        {
+            "name": "mobilephone",
+            "value": "",
+            "purpose": "To receive SMS notifications about your services with us please provide your mobile phone number, starting with country code prefix, ie. +1"
+        }
+    ],
+    "contacts": [],
+    "services": [
+        {
+            "id": "1660",
+            "categoryname": "Shared Hosting cPanel",
+            "name": "Starter Hosting (US) (corehost_core_3_gb)",
+            "date_created": "2023-07-05",
+            "domain": "cultural.am",
+            "gateway": "Credit Card - Telecomarmenia OJSC",
+            "firstpayment": "25000.00",
+            "total": "25000.00",
+            "billingcycle": "Annually",
+            "next_due": "2026-07-03",
+            "currency": "AMD",
+            "status": "Active",
+            "username": "cultural"
+        }
+    ],
+    "domains": [
+        {
+            "id": "150",
+            "domain": "cultural.am",
+            "date_created": "0000-00-00",
+            "firstpayment": "8000.00",
+            "recurring_amount": "8000.00",
+            "period": "1",
+            "expires": "2025-07-02",
+            "status": "Expired",
+            "next_due": "2025-07-02",
+            "next_invoice": "2025-06-17",
+            "idprotection": "0",
+            "autorenew": "1",
+            "reglock": "0"
+        }
+    ],
+    "log": [
+        {
+            "date": "2025-02-13 11:58:08",
+            "description": "Client has logged in"
+        },
+        {
+            "date": "2025-02-13 12:05:26",
+            "description": "Client has logged in"
+        },
+        {
+            "date": "2025-02-13 12:21:14",
+            "description": "Client opened new ticket #624057"
+        },
+        {
+            "date": "2025-02-13 14:50:21",
+            "description": "Client posted new reply to ticket #624057"
+        },
+        {
+            "date": "2025-02-14 11:49:44",
+            "description": "Client has logged in"
+        },
+        {
+            "date": "2025-07-03 15:09:47",
+            "description": "Client has logged in"
+        },
+        {
+            "date": "2025-07-03 15:11:39",
+            "description": "Client changed his details"
+        }
+    ],
+    "transactions": [
+        {
+            "transaction_id": "RE2WR7XZHQ2Z35",
+            "invoice_id": "4355",
+            "in": "8000.00",
+            "out": "0.00",
+            "fee": "0.00",
+            "gateway": "Credit Card - Telecomarmenia OJSC",
+            "currency": "AMD",
+            "exchangerate": "1.0000000000",
+            "date": "2023-07-07 14:03:49"
+        },
+        {
+            "transaction_id": "O32RGLYLXI2W7S",
+            "invoice_id": "4356",
+            "in": "25000.00",
+            "out": "0.00",
+            "fee": "0.00",
+            "gateway": "Credit Card - Telecomarmenia OJSC",
+            "currency": "AMD",
+            "exchangerate": "1.0000000000",
+            "date": "2023-07-07 14:03:57"
+        },
+        {
+            "transaction_id": "O32LKR4BJFAYZA",
+            "invoice_id": "6571",
+            "in": "8000.00",
+            "out": "0.00",
+            "fee": "0.00",
+            "gateway": "Credit Card - Telecomarmenia OJSC",
+            "currency": "AMD",
+            "exchangerate": "1.0000000000",
+            "date": "2024-07-05 14:09:21"
+        },
+        {
+            "transaction_id": "CHZ4WTP5X9VO2M",
+            "invoice_id": "6572",
+            "in": "25000.00",
+            "out": "0.00",
+            "fee": "0.00",
+            "gateway": "Credit Card - Telecomarmenia OJSC",
+            "currency": "AMD",
+            "exchangerate": "1.0000000000",
+            "date": "2024-07-05 14:09:37"
+        }
+    ],
+    "invoices": [
+        {
+            "invoice_id": "4355",
+            "total": "8000.00",
+            "credit": "0.00",
+            "subtotal": "6666.67",
+            "date": "2023-07-03",
+            "duedate": "2023-07-03",
+            "datepaid": "2023-07-07 14:03:49",
+            "status": "Paid",
+            "gateway": "Credit Card - Telecomarmenia OJSC",
+            "tax1rate": "20.00",
+            "tax2rate": "0.00",
+            "tax1amount": "1333.33",
+            "tax2amount": "0.00",
+            "exchangerate": "1.0000000000",
+            "currency": "AMD"
+        },
+        {
+            "invoice_id": "4356",
+            "total": "25000.00",
+            "credit": "0.00",
+            "subtotal": "20833.33",
+            "date": "2023-07-05",
+            "duedate": "2023-07-03",
+            "datepaid": "2023-07-07 14:03:57",
+            "status": "Paid",
+            "gateway": "Credit Card - Telecomarmenia OJSC",
+            "tax1rate": "20.00",
+            "tax2rate": "0.00",
+            "tax1amount": "4166.67",
+            "tax2amount": "0.00",
+            "exchangerate": "1.0000000000",
+            "currency": "AMD"
+        },
+        {
+            "invoice_id": "6571",
+            "total": "8000.00",
+            "credit": "0.00",
+            "subtotal": "6666.67",
+            "date": "2024-06-17",
+            "duedate": "2024-07-02",
+            "datepaid": "2024-07-05 14:09:21",
+            "status": "Paid",
+            "gateway": "Credit Card - Telecomarmenia OJSC",
+            "tax1rate": "20.00",
+            "tax2rate": "0.00",
+            "tax1amount": "1333.33",
+            "tax2amount": "0.00",
+            "exchangerate": "1.0000000000",
+            "currency": "AMD"
+        },
+        {
+            "invoice_id": "6572",
+            "total": "25000.00",
+            "credit": "0.00",
+            "subtotal": "20833.33",
+            "date": "2024-06-23",
+            "duedate": "2024-07-03",
+            "datepaid": "2024-07-05 14:09:37",
+            "status": "Paid",
+            "gateway": "Credit Card - Telecomarmenia OJSC",
+            "tax1rate": "20.00",
+            "tax2rate": "0.00",
+            "tax1amount": "4166.67",
+            "tax2amount": "0.00",
+            "exchangerate": "1.0000000000",
+            "currency": "AMD"
+        },
+        {
+            "invoice_id": "7465",
+            "total": "8000.00",
+            "credit": "0.00",
+            "subtotal": "6666.67",
+            "date": "2025-06-17",
+            "duedate": "2025-07-02",
+            "datepaid": "0000-00-00 00:00:00",
+            "status": "Unpaid",
+            "gateway": "",
+            "tax1rate": "20.00",
+            "tax2rate": "0.00",
+            "tax1amount": "1333.33",
+            "tax2amount": "0.00",
+            "exchangerate": "1.0000000000",
+            "currency": "AMD"
+        },
+        {
+            "invoice_id": "7485",
+            "total": "25000.00",
+            "credit": "0.00",
+            "subtotal": "20833.33",
+            "date": "2025-06-23",
+            "duedate": "2025-07-03",
+            "datepaid": "0000-00-00 00:00:00",
+            "status": "Unpaid",
+            "gateway": "Credit Card - Telecomarmenia OJSC",
+            "tax1rate": "20.00",
+            "tax2rate": "0.00",
+            "tax1amount": "4166.67",
+            "tax2amount": "0.00",
+            "exchangerate": "1.0000000000",
+            "currency": "AMD"
+        }
+    ],
+    "tickets": [
+        {
+            "ticket_number": "580660",
+            "date": "2024-02-27 13:58:32",
+            "lastreply": "2024-02-27 14:03:38",
+            "department": "Support",
+            "cc": null,
+            "subject": "cpanel password",
+            "status": "Answered",
+            "request_type": "General",
+            "senderip": "212.73.65.29",
+            "messages": [
+                {
+                    "date": "2024-02-27 13:58:32",
+                    "name": "Hasmik Khechikyan",
+                    "email": "",
+                    "message": "cpanel\n\nhosting.am:2083    password:  vf@pC4AKZBUR",
+                    "type": "Admin"
+                }
+            ]
+        },
+        {
+            "ticket_number": "624057",
+            "date": "2025-02-13 12:21:14",
+            "lastreply": "2025-02-13 16:30:43",
+            "department": "Support",
+            "cc": null,
+            "subject": "hosting  access  ",
+            "status": "Answered",
+            "request_type": "General",
+            "senderip": "5.77.212.114",
+            "messages": [
+                {
+                    "date": "2025-02-13 12:21:14",
+                    "name": "Hasmik Khechikyan",
+                    "email": "",
+                    "message": "https:\/\/cpanel.cultural.am\/\r\n\r\nPlease provide or reset the login\/ pass  for my hosting.\r\n\r\nI need to check  limitations,  storage  is full ?\r\n\r\nbecause no new content is added to the site.",
+                    "type": "Client"
+                },
+                {
+                    "date": "2025-02-13 13:17:38",
+                    "name": "Armen Movsisyan",
+                    "email": "tickets@teamcloud.am",
+                    "message": "Your hosting storage is full, which is why no new content can be added to your site. You may need to free up some space by deleting unnecessary files, upgrading to a higher-tier plan, or optimizing your storage usage.",
+                    "type": "Admin"
+                },
+                {
+                    "date": "2025-02-13 14:50:21",
+                    "name": "Hasmik Khechikyan",
+                    "email": "mshakutayin@gmail.com",
+                    "message": "plz  provide access to hosting  - login \/ pass   by mshakutayin@gmail.com",
+                    "type": "Client"
+                },
+                {
+                    "date": "2025-02-13 16:30:43",
+                    "name": "Armen Movsisyan",
+                    "email": "tickets@teamcloud.am",
+                    "message": "login\/pass sent to mshakutayin@gmail.com",
+                    "type": "Admin"
+                }
+            ]
+        }
+    ]
+}
