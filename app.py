@@ -159,6 +159,61 @@ if df is not None:
         ["sentence-transformers/distiluse-base-multilingual-cased", "Record Linkage"]
     )
     if model_name == "sentence-transformers/distiluse-base-multilingual-cased":
+        # --- Manual merge block: объединить любые категории вручную ---
+        st.markdown("---")
+        st.markdown("#### Manual merge: объединить любые категории вручную")
+        # 1. Исключить уже зафиксированные категории из списка для объединения
+        fixed_group_names_set = st.session_state.get('fixed_group_names', set())
+        manual_fixed_assignments = st.session_state.get('manual_fixed_assignments', {})
+        # Собираем все зафиксированные категории
+        fixed_cats = set()
+        for group, cats in manual_fixed_assignments.items():
+            fixed_cats.update(cats)
+        # Формируем список для выбора: если категория зафиксирована, показываем с пометкой
+        all_categories = sorted(df[category_col].unique())
+        manual_merge_options = []
+        manual_merge_labels = {}
+        for cat in all_categories:
+            fixed_group = None
+            for group, cats in manual_fixed_assignments.items():
+                if cat in cats:
+                    fixed_group = group
+                    break
+            if fixed_group:
+                manual_merge_labels[cat] = f"{cat} (уже в группе '{fixed_group}')"
+            else:
+                manual_merge_options.append(cat)
+                manual_merge_labels[cat] = cat
+        manual_merge_cats = st.multiselect(
+            "Выберите категории для объединения вручную",
+            options=manual_merge_options,
+            format_func=lambda x: manual_merge_labels[x],
+            key="manual_merge_cats"
+        )
+        manual_merge_name = st.text_input("Новое имя группы для выбранных категорий", key="manual_merge_name")
+        if st.button("Применить ручное объединение"):
+            if manual_merge_cats and manual_merge_name:
+                # Проверка: не дать одной категории попасть в несколько групп
+                overlap = set(manual_merge_cats) & fixed_cats
+                if overlap:
+                    st.error(f"Категории {list(overlap)} уже зафиксированы в других группах. Снимите их из выбора.")
+                else:
+                    # Обновить group_name для выбранных категорий в current_df
+                    current_df = st.session_state['current_df']
+                    current_df.loc[current_df[category_col].isin(manual_merge_cats), 'group_name'] = manual_merge_name
+                    st.session_state['current_df'] = current_df
+                    # Добавить в историю ручных объединений
+                    if manual_merge_name not in manual_fixed_assignments:
+                        manual_fixed_assignments[manual_merge_name] = set()
+                    manual_fixed_assignments[manual_merge_name].update(manual_merge_cats)
+                    st.session_state['manual_fixed_assignments'] = manual_fixed_assignments
+                    # Добавить в фиксированные группы
+                    fixed_group_names = st.session_state.get('fixed_group_names', set())
+                    fixed_group_names.add(manual_merge_name)
+                    st.session_state['fixed_group_names'] = fixed_group_names
+                    st.success(f"Категории {manual_merge_cats} объединены в группу '{manual_merge_name}'")
+            else:
+                st.warning("Выберите категории и введите имя группы.")
         try:
             # --- Iterative clustering: use current_df for all rounds ---
             if 'current_df' not in st.session_state:
