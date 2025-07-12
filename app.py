@@ -187,36 +187,58 @@ if df is not None:
                 fixed_df = current_df[fixed_mask].copy()
                 categories = unfixed_df[category_col].astype(str).unique()
 
-            with st.spinner("Loading model and generating embeddings. This may take a few minutes on first run..."):
-                model = SentenceTransformer(model_name, device="cpu")
-                embeddings = model.encode(categories, show_progress_bar=False)
-                st.write("Embeddings shape:", np.array(embeddings).shape)
+            if len(categories) == 0:
+                st.warning("No more categories left for clustering. All clusters are fixed.")
+                df_clusters = pd.DataFrame({"original_category": [], "cluster": []})
+            else:
+                with st.spinner("Loading model and generating embeddings. This may take a few minutes on first run..."):
+                    model = SentenceTransformer(model_name, device="cpu")
+                    embeddings = model.encode(categories, show_progress_bar=False)
+                    st.write("Embeddings shape:", np.array(embeddings).shape)
 
-            eps = st.slider("DBSCAN eps (distance threshold)", 0.1, 1.0, 0.4, 0.05, key="eps_main")
-            min_samples = st.slider("DBSCAN min_samples", 1, 5, 2, key="min_samples_main")
-            clustering = DBSCAN(eps=eps, min_samples=min_samples, metric="cosine").fit(embeddings)
-            df_clusters = pd.DataFrame({
-                "original_category": categories,
-                "cluster": clustering.labels_
-            })
+                eps = st.slider("DBSCAN eps (distance threshold)", 0.1, 1.0, 0.4, 0.05, key="eps_main")
+                min_samples = st.slider("DBSCAN min_samples", 1, 5, 2, key="min_samples_main")
+                clustering = DBSCAN(eps=eps, min_samples=min_samples, metric="cosine").fit(embeddings)
+                df_clusters = pd.DataFrame({
+                    "original_category": categories,
+                    "cluster": clustering.labels_
+                })
 
             st.markdown("#### Review clusters and select those you want to join (rename all to first):")
-            # Show fixed clusters first
-            if not fixed_df.empty:
+            # Show all fixed clusters from all rounds (not just current fixed_df)
+            fixed_group_names_all = st.session_state.get('fixed_group_names', set())
+            if fixed_group_names_all:
                 st.markdown("---")
                 st.markdown("#### Fixed clusters (excluded from further clustering):")
-                for fixed_val in sorted(fixed_df['group_name'].unique() if 'group_name' in fixed_df.columns else fixed_df[category_col].unique()):
-                    cluster_cats = fixed_df[fixed_df['group_name'] == fixed_val]['group_name'].unique() if 'group_name' in fixed_df.columns else fixed_df[fixed_df[category_col] == fixed_val][category_col].unique()
+                # Find all categories assigned to each fixed group_name in ALL previous rounds
+                # We'll search in all DataFrames that ever had group_name assignments
+                # For robustness, use both the original df and all session_state['manual_fixed_assignments'] if exists
+                manual_fixed_assignments = st.session_state.get('manual_fixed_assignments', {})
+                for fixed_val in sorted(fixed_group_names_all):
+                    assigned_cats = set()
+                    # 1. From manual_fixed_assignments (if exists)
+                    if fixed_val in manual_fixed_assignments:
+                        assigned_cats.update(manual_fixed_assignments[fixed_val])
+                    # 2. From all current and previous DataFrames
+                    for search_df in [st.session_state.get('current_df', df), df]:
+                        if 'group_name' in search_df.columns:
+                            assigned_cats.update(search_df[search_df['group_name'] == fixed_val][category_col].unique())
+                    # Fallback: if nothing found, just show the group name itself
+                    if not assigned_cats:
+                        assigned_cats = {fixed_val}
                     with st.expander(f"Fixed cluster: {fixed_val}"):
-                        st.success("Fixed cluster")
-                        st.success(list(cluster_cats))
+                        st.success(list(assigned_cats))
 
             # Now show clusters for manual join (only for unfixed)
             for cluster_id in sorted(df_clusters["cluster"].unique()):
                 cluster_key = f"cluster_{cluster_id}_fixed"
                 is_fixed = cluster_id in fixed_clusters
                 cluster_cats = df_clusters[df_clusters["cluster"] == cluster_id]["original_category"].tolist()
-                with st.expander(f"Cluster {cluster_id}"):
+                is_ungrouped = (cluster_id == -1)
+                expander_label = f"Cluster {'ungrouped' if is_ungrouped else cluster_id}"
+                with st.expander(expander_label, expanded=not is_fixed):
+                    if is_ungrouped:
+                        st.warning("This cluster contains ungrouped categories. They will not be merged with others until you select and apply a join.")
                     st.json(cluster_cats)
                     checked = st.checkbox(f"Join this cluster (rename all to '{cluster_cats[0]}')", key=f"join_checkbox_{cluster_id}", value=(cluster_id in manual_join_selected))
                     if checked:
@@ -231,13 +253,19 @@ if df is not None:
             if apply_btn:
                 renames = {}
                 fixed_group_names = set()
+                manual_fixed_assignments = st.session_state.get('manual_fixed_assignments', {})
                 for cluster_id in manual_join_selected:
                     cluster_cats = df_clusters[df_clusters["cluster"] == cluster_id]["original_category"].tolist()
                     group_name = cluster_cats[0]
                     for cat in cluster_cats:
                         renames[cat] = group_name
                         fixed_group_names.add(group_name)
-                # Сохраняем зафиксированные group_name в session_state
+                        # Track manual assignments for history
+                        if group_name not in manual_fixed_assignments:
+                            manual_fixed_assignments[group_name] = set()
+                        manual_fixed_assignments[group_name].add(cat)
+                # Save manual assignments for all rounds
+                st.session_state['manual_fixed_assignments'] = manual_fixed_assignments
                 st.session_state['fixed_group_names'] = st.session_state.get('fixed_group_names', set()) | fixed_group_names
                 # Remove group_name if exists to avoid merge conflicts
                 if 'group_name' in current_df.columns:
@@ -246,9 +274,13 @@ if df is not None:
                 group_table["group_name"] = group_table["original_category"].map(lambda x: renames.get(x, x))
                 new_df = current_df.merge(group_table[["original_category", "group_name"]], left_on=(category_col), right_on="original_category", how="left")
                 # Only filter by source_file if group_name was actually created
+                # FIX: Do not drop ungrouped categories (group_name == -1) when filtering by source_file
                 if group_only_diff_sources and "source_file" in new_df.columns and "group_name" in new_df.columns:
                     new_df['source_file_count'] = new_df.groupby('group_name')['source_file'].transform('nunique')
-                    new_df = new_df[new_df['source_file_count'] > 1].drop(columns=['source_file_count'])
+                    # Keep all ungrouped (-1) rows, filter only grouped
+                    mask_ungrouped = new_df['group_name'] == -1
+                    mask_grouped = new_df['source_file_count'] > 1
+                    new_df = new_df[mask_ungrouped | mask_grouped].drop(columns=['source_file_count'])
                 if "original_category" in new_df.columns:
                     new_df = new_df.drop(columns=["original_category"])
                 st.session_state['current_df'] = new_df
@@ -261,35 +293,65 @@ if df is not None:
             if rerun_btn:
                 st.session_state['manual_join_selected'] = set()
                 st.rerun()
-            # 8. Fix groups as parent
-            if st.button("Fix groups as parent"):
-                group_table = df_clusters.copy()
-                group_table["group_name"] = group_table.groupby("cluster")['original_category'].transform('first')
-                grouped_df = df.merge(group_table[["original_category", "group_name"]], left_on=category_col, right_on="original_category", how="left")
-                # Если group_name не был создан (все значения NaN), создаём его из category
-                if "group_name" not in grouped_df.columns or grouped_df["group_name"].isnull().all():
-                    grouped_df["group_name"] = grouped_df[category_col]
-                # Если есть group_name_y, используем его как основной group_name
-                if "group_name_y" in grouped_df.columns:
-                    grouped_df["group_name"] = grouped_df["group_name_y"].combine_first(grouped_df["group_name_x"] if "group_name_x" in grouped_df.columns else grouped_df[category_col])
-                # Удаляем только служебные столбцы, если есть
-                for col in ["original_category", "group_name_x", "group_name_y"]:
-                    if col in grouped_df.columns:
-                        grouped_df = grouped_df.drop(columns=[col])
-                # Предпросмотр финальной таблицы (первые 20 строк)
-                st.markdown("#### Предпросмотр финального файла (первые 20 строк):")
-                st.dataframe(grouped_df.head(20))
-                # Кнопка скачивания
-                st.download_button(
-                    "Download grouped table CSV",
-                    grouped_df.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig"),
-                    "grouped_categories.csv",
-                    "text/csv"
-                )
-                import os
-                save_path = os.path.join(os.getcwd(), "grouped_categories.csv")
-                grouped_df.to_csv(save_path, index=False, encoding="utf-8-sig")
-                st.info(f"Grouped table automatically saved to: {save_path}")
+
+            # 8. Download final processed file (from current_df)
+            st.markdown("---")
+            st.markdown("#### Download the final processed table (all manual and automatic merges applied):")
+            # Build a full final table: merge all fixed and unfixed rows from the original df
+            # 1. Get all fixed group names and their members from session_state
+            fixed_group_names = st.session_state.get('fixed_group_names', set())
+            current_df = st.session_state.get('current_df', df)
+            # Build fixed assignments from ALL rounds, not just current_df
+            fixed_assignments = {}
+            manual_fixed_assignments = st.session_state.get('manual_fixed_assignments', {})
+            for fixed_group in fixed_group_names:
+                # 1. From manual_fixed_assignments (if exists)
+                if fixed_group in manual_fixed_assignments:
+                    for cat in manual_fixed_assignments[fixed_group]:
+                        fixed_assignments[cat] = fixed_group
+                # 2. From all current and previous DataFrames
+                for search_df in [st.session_state.get('current_df', df), df]:
+                    if 'group_name' in search_df.columns:
+                        matches = search_df[search_df['group_name'] == fixed_group]
+                        for _, row in matches.iterrows():
+                            fixed_assignments[row[category_col]] = fixed_group
+            # 2. For all rows in the original df, assign group_name: fixed if exists, else from current_df, else itself
+            def get_final_group(row):
+                cat = row[category_col]
+                # Priority: fixed assignment > current_df group_name > ungrouped marker
+                if cat in fixed_assignments:
+                    return fixed_assignments[cat]
+                # Try to get from current_df (may be unfixed group)
+                if 'group_name' in current_df.columns:
+                    match = current_df[current_df[category_col] == cat]
+                    if not match.empty:
+                        val = match.iloc[0]['group_name']
+                        # If group_name is not the same as the original category, treat as grouped
+                        if val != cat:
+                            return val
+                # If not grouped, mark as ungrouped (use -1, or 'ungrouped')
+                return 'ungrouped'
+            final_df = df.copy()
+            final_df['group_name'] = final_df.apply(get_final_group, axis=1)
+            # Remove only service columns if present
+            for col in ["original_category", "group_name_x", "group_name_y"]:
+                if col in final_df.columns:
+                    final_df = final_df.drop(columns=[col])
+            st.dataframe(final_df.head(20))
+            st.download_button(
+                "Download final grouped table CSV",
+                final_df.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig"),
+                "grouped_categories.csv",
+                "text/csv"
+            )
+            # Remove auto-save to file to avoid PermissionError on Windows if file is open
+            # import os
+            # save_path = os.path.join(os.getcwd(), "grouped_categories.csv")
+            # try:
+            #     final_df.to_csv(save_path, index=False, encoding="utf-8-sig")
+            #     st.info(f"Final grouped table automatically saved to: {save_path}")
+            # except PermissionError:
+            #     st.warning(f"Could not save to {save_path} (file may be open). Please close the file and try again.")
         except NotImplementedError as e:
             st.error(f"Model loading failed: {e}\n\n"
                      "This error may be caused by a mismatch between PyTorch and your hardware. "
