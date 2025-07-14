@@ -503,5 +503,20 @@ if df is not None:
 else:
     st.info("Please upload at least one CSV file.")
 
-st.markdown("---")
+
+
+# --- Навигационное меню и кнопка перехода ---
+if df is not None:
+    st.markdown("---")
+    menu = st.radio(
+        "Навигация:",
+        ["Главная страница", "Обработка параметров финального результата"],
+        key="main_menu_radio"
+    )
+    # Сохраняем финальный DataFrame для доступа на другой странице
+    st.session_state['final_df_for_param_page'] = df.copy()
+    if menu == "Обработка параметров финального результата" or st.button("Перейти к обработке параметров", key="go_to_param_page"):
+        st.markdown("**Откройте страницу 'Обработка параметров финального результата' в меню или перейдите вручную в pages/param_processing.py**")
+        st.info("Если вы используете стандартный Streamlit multipage, выберите страницу в меню слева. Если меню не видно — запустите Streamlit с параметром --multiapp или используйте ссылку /pages/param_processing.py.")
+
 st.markdown("**Instructions:** Upload CSVs, select the category column, choose an embedding model, adjust clustering, and download the mapping.")
