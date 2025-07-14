@@ -247,9 +247,24 @@ if df is not None:
                 df_clusters = pd.DataFrame({"original_category": [], "cluster": []})
             else:
                 with st.spinner("Loading model and generating embeddings. This may take a few minutes on first run..."):
-                    model = SentenceTransformer(model_name, device="cpu")
-                    embeddings = model.encode(categories, show_progress_bar=False)
-                    st.write("Embeddings shape:", np.array(embeddings).shape)
+                    import torch
+                    # Try to force CPU and handle meta tensor error
+                    try:
+                        model = SentenceTransformer(model_name, device="cpu")
+                        # Check for meta tensors and reload if needed
+                        for name, param in model.named_parameters():
+                            if hasattr(param, 'is_meta') and param.is_meta:
+                                st.warning(f"Parameter {name} is a meta tensor. Attempting to reload on CPU...")
+                                model = SentenceTransformer(model_name, device="cpu", trust_remote_code=True)
+                                break
+                        embeddings = model.encode(categories, show_progress_bar=False)
+                        st.write("Embeddings shape:", np.array(embeddings).shape)
+                    except RuntimeError as e:
+                        st.error(f"PyTorch RuntimeError: {e}\n\nПопробуйте обновить PyTorch и sentence-transformers, либо используйте только CPU-окружение.")
+                        st.stop()
+                    except Exception as e:
+                        st.error(f"Model loading failed: {e}\n\nThis error may be caused by a mismatch between PyTorch and your hardware. Try updating PyTorch, or running on a different machine/environment.")
+                        st.stop()
 
                 eps = st.slider("DBSCAN eps (distance threshold)", 0.1, 1.0, 0.4, 0.05, key="eps_main")
                 min_samples = st.slider("DBSCAN min_samples", 1, 5, 2, key="min_samples_main")
