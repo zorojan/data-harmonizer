@@ -1,5 +1,6 @@
-Device Category,Model Name,Image Quality,Screen Inches,Panel Type
-TV,Hisense 40A6,FullHD,40,LED
-TV,Sharp 55DN,4K HDR,55,QLED
-Laptop,Huawei MateBook D,Full HD,15.6,IPS
-Laptop,Apple MacBook Air,Retina,13.3,Retina IPS
+Listing_Name,Category_Tag,Listing_SKU,Selling_Price,Vendor,Product_Specs,Weight_Grams,Color_Variant,Power_Output_Volts,Display_Size_in,Screen_Resolution_Text,Noise_Level_Decibels
+HP Pavilion 15,Laptops,HP-PV15-001,850.00,HP Store,Fast processor,2200,Silver,19.5,15.6,1920x1080,
+MacBook Air M2,Notebooks,APP-MBA-M2,1199.00,Apple.com,Ultra-thin and powerful,1240,Space Gray,20.0,13.6,2560x1600,
+Dell XPS 13,Portable Computers,DEL-XPS-13,1300.00,Dell Outlet,Compact design,1200,Platinum Silver,19.0,13.4,1920x1200,
+Drill Makita LXT Brushless,Cordless Drills,MAK-DRL-LXT,175.00,Tool Depot,Cordless and powerful,2800,Blue,18.0,,
+Drill DeWalt XR Cordless,Heavy Duty Tools,DWL-DRL-XR,210.00,Hardware Pro,Heavy-duty performance,3200,Yellow,20.0,,

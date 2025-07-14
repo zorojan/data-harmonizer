@@ -10,10 +10,13 @@ sentence-transformers
 # Быстрое текстовое сравнение
 rapidfuzz
 
-# Для визуализаций (опционально)
-matplotlib
-seaborn
-plotly
+
 
 # Для чтения Excel
 openpyxl
+
+# Для интеллектуального сопоставления и обработки текста
+nltk
+spacy
+# Для загрузки моделей spaCy (например, en_core_web_sm)
+# python -m spacy download en_core_web_sm

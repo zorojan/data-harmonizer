@@ -16,6 +16,38 @@ demo_files = [
     os.path.join("Upload", "source3.csv"),
     os.path.join("Upload", "source4.csv")
 ]
+
+def robust_read_csv(file_or_path):
+    """
+    More robust CSV reading function that tries different encodings,
+    delimiters, and handles bad lines to prevent ParserError.
+    """
+    # For file-like objects from upload, we need to be able to seek
+    is_file_like = hasattr(file_or_path, 'seek')
+
+    # List of configurations to try
+    configs = [
+        {'encoding': 'utf-8', 'sep': ',', 'on_bad_lines': 'warn'},
+        {'encoding': 'utf-8', 'sep': ';', 'on_bad_lines': 'warn'},
+        {'encoding': 'cp1251', 'sep': ',', 'on_bad_lines': 'warn'},
+        {'encoding': 'cp1251', 'sep': ';', 'on_bad_lines': 'warn'},
+        # Final attempt with python engine which is more robust
+        {'encoding': 'utf-8', 'sep': None, 'engine': 'python', 'on_bad_lines': 'skip'}
+    ]
+
+    for config in configs:
+        try:
+            if is_file_like:
+                file_or_path.seek(0)
+            return pd.read_csv(file_or_path, **config)
+        except (UnicodeDecodeError, pd.errors.ParserError, ValueError):
+            continue # Try next configuration
+
+    # If all attempts fail, raise an error
+    st.error(f"Fatal Error: Could not parse the CSV file: {getattr(file_or_path, 'name', file_or_path)}. The file may be corrupted or in an unsupported format.")
+    return None
+
+
 col1, col2 = st.columns(2)
 with col1:
     uploaded_files = st.file_uploader("Upload CSV files", type=["csv"], accept_multiple_files=True, key="uploader")
@@ -26,12 +58,12 @@ with col2:
         use_demo = True
 
 if st.session_state.get('use_demo', False):
-    def safe_read_csv(filepath):
-        try:
-            return pd.read_csv(filepath, encoding='utf-8')
-        except UnicodeDecodeError:
-            return pd.read_csv(filepath, encoding='cp1251')
-    dfs = [safe_read_csv(f) for f in demo_files]
+    dfs = [robust_read_csv(f) for f in demo_files]
+    # Filter out None results if a file failed to load
+    dfs = [df for df in dfs if df is not None]
+    if not dfs:
+        st.stop() # Stop if no demo files could be loaded
+
     selected_dfs = []
     for i, df_demo in enumerate(dfs):
         df_demo['source_file'] = os.path.basename(demo_files[i])
@@ -83,16 +115,20 @@ if st.session_state.get('use_demo', False):
         st.session_state['use_demo'] = False
 elif uploaded_files:
     # Add a column with the uploaded source file name after 'product_name'
-    dfs = []
+    dfs = [robust_read_csv(f) for f in uploaded_files]
+    # Filter out None results if a file failed to load
+    dfs = [df for df in dfs if df is not None]
+    if not dfs:
+        st.stop() # Stop if no files could be loaded
+
     def safe_read_csv_filelike(f):
         try:
             return pd.read_csv(f, encoding='utf-8')
         except UnicodeDecodeError:
             f.seek(0)
             return pd.read_csv(f, encoding='cp1251')
-    for f in uploaded_files:
-        temp_df = safe_read_csv_filelike(f)
-        source_name = getattr(f, 'name', 'uploaded_file')
+    for i, temp_df in enumerate(dfs):
+        source_name = getattr(uploaded_files[i], 'name', f'uploaded_file_{i}')
         insert_idx = temp_df.columns.get_loc('product_name') + 1 if 'product_name' in temp_df.columns else len(temp_df.columns)
         temp_df.insert(insert_idx, 'source_file', source_name)
         st.markdown(f"**Uploaded file: {source_name}**")
@@ -128,7 +164,8 @@ elif uploaded_files:
         if 'SKU' not in temp_df.columns or not col_sku:
             if 'product_name' in temp_df.columns:
                 temp_df['SKU'] = temp_df['product_name']
-        dfs.append(temp_df)
+        # This line is removed as dfs is already a list of dataframes
+        # dfs.append(temp_df)
     df = pd.concat(dfs, ignore_index=True)
     # Always add group_name column at start
     if 'group_name' not in df.columns:
@@ -170,7 +207,7 @@ if df is not None:
         for group, cats in manual_fixed_assignments.items():
             fixed_cats.update(cats)
         # Формируем список для выбора: если категория зафиксирована, показываем с пометкой
-        all_categories = sorted(df[category_col].unique())
+        all_categories = sorted(df[category_col].astype(str).unique())
         manual_merge_options = []
         manual_merge_labels = {}
         for cat in all_categories:
@@ -408,6 +445,13 @@ if df is not None:
                 if col in final_df.columns:
                     final_df = final_df.drop(columns=[col])
             st.dataframe(final_df.head(20))
+            # Сохраняем финальный результат в grouped_categories.csv
+            save_path = os.path.join(os.getcwd(), "grouped_categories.csv")
+            try:
+                final_df.to_csv(save_path, index=False, encoding="utf-8-sig")
+                st.info(f"Финальный сгруппированный результат сохранён в: {save_path}")
+            except Exception as e:
+                st.warning(f"Не удалось сохранить grouped_categories.csv: {e}")
             st.download_button(
                 "Download final grouped table CSV",
                 final_df.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig"),
@@ -520,18 +564,12 @@ else:
 
 
 
-# --- Навигационное меню и кнопка перехода ---
+
+# --- Кнопка перехода на страницу оптимизации параметров ---
 if df is not None:
     st.markdown("---")
-    menu = st.radio(
-        "Навигация:",
-        ["Главная страница", "Обработка параметров финального результата"],
-        key="main_menu_radio"
-    )
-    # Сохраняем финальный DataFrame для доступа на другой странице
     st.session_state['final_df_for_param_page'] = df.copy()
-    if menu == "Обработка параметров финального результата" or st.button("Перейти к обработке параметров", key="go_to_param_page"):
-        st.markdown("**Откройте страницу 'Обработка параметров финального результата' в меню или перейдите вручную в pages/param_processing.py**")
-        st.info("Если вы используете стандартный Streamlit multipage, выберите страницу в меню слева. Если меню не видно — запустите Streamlit с параметром --multiapp или используйте ссылку /pages/param_processing.py.")
+    if st.button("Перейти к оптимизации параметров", key="go_to_param_page"):
+        st.switch_page('pages/param_processing.py')
 
 st.markdown("**Instructions:** Upload CSVs, select the category column, choose an embedding model, adjust clustering, and download the mapping.")

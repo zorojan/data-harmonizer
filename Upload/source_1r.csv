@@ -1,5 +1,6 @@
-Category,Product Name,Screen Resolution,Screen Size,Panel Type
-TVs,"Samsung QLED 55""",4K,55 inches,QLED
-TVs,"LG OLED 48""",4K UHD,"48""",OLED
-Laptops,Dell Inspiron 15,1920x1080,"15.6""",IPS
-Laptops,HP Pavilion 14,Full HD,14 inches,VA
+Product Name,Category,SKU,Price USD,Brand,Description,Weight_kg,Color,Power_Consumption_W,Dimensions_LxWxH_mm,Availability,Rating_Stars
+Nespresso Vertuo,Coffee Makers,NSP-VRT-001,149.00,Nespresso,Single-serve coffee machine,4.84,Red,1485,140x240x310,In Stock,4.7
+Wayfair Dining Table,Dining Room Furniture,WFT-DT-005,299.99,Wayfair,Modern wooden dining table,45.0,Gray,,1400x800x750,In Stock,4.2
+HP LaserJet M404,Laser Printers,HP-LJ-M404,350.00,HP,Efficient monochrome printer,9.8,White,530,400x300x200,In Stock,4.5
+Sony Bravia 55",LED Televisions,SNY-BRV-55,1200.00,Sony,Vibrant 4K display TV,15.5,Black,,1230x710x58,In Stock,4.7
+Daikin Split AC,Air Conditioning Units,DKN-AC-S01,680.00,Daikin,Energy-efficient split AC,20.9,White,2243,770x280x225,In Stock,4.8

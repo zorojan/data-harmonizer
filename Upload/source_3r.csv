@@ -1,5 +1,6 @@
-Type,Model,Resolution,Screen,Screen Tech
-TV,Toshiba 43U,3840x2160,43 in,LED
-TV,Panasonic Smart 60,4K,60 inch,OLED
-Laptop,Acer Swift 3,1920 x 1080,"14""",IPS
-Laptop,MSI Modern 14,FullHD,"14""",IPS
+Model,Type,Cost_Dollars,Supplier,Product_Details,Energy_Usage_kWh,Noise_Level_dB,Resolution_Format,Release_Date
+Philips 3200 Series,Home Coffee Appliances,450.00,Philips,Fully automatic espresso machine with milk frother,0.815,,2560x1600,2022-01-15
+IKEA Malm Bed,Bedroom Furniture,199.00,IKEA,Minimalist design, particleboard,,,,2021-03-20
+Epson EcoTank L3250,EcoTank Printers,220.00,Epson,Cartridge-free printing, wireless connectivity,0.742,,5760x1440,2023-05-10
+Samsung QLED 4K,QLED Televisions,1500.00,Samsung,Quantum dot technology, stunning 4K display,,,3840x2160,2022-11-01
+LG DualCool,Home Cooling Solutions,750.00,LG,Dual Inverter compressor AC,2.273,44,,2023-04-25

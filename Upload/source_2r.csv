@@ -1,5 +1,6 @@
-Group,Product,Display,Diagonal,Panel
-TV,Sony Bravia 50,Ultra HD,50'',LED
-TV,Philips Ambilight 65,4K,65 inches,LED
-Laptop,Lenovo IdeaPad 5,Full HD,15.6 in,IPS
-Laptop,Asus VivoBook 17,1600x900,17.3 inches,TN
+Item Title,Product Type,Item ID,Unit Price,Manufacturer,Features,Material,RAM_GB,Storage_GB,Screen_Size_Inches,Power_Rating_kW,Width_cm,Height_cm,Depth_cm,Stock_Status,Customer_Review_Score
+DeLonghi Magnifica,Espresso Machines,DLG-MAG-002,600.00,DeLonghi,Automatic bean-to-cup,Metal/Plastic,,,,,1.409,23.8,43.0,35.0,In Stock,4.5
+Ashley Sofa Set,Living Room Furniture,ASH-SF-010,749.50,Ashley Furniture,Comfortable sectional sofa,Fabric,,,,,,240.0,160.0,90.0,In Stock,4.6
+Canon Pixma G7020,Inkjet Printers,CAN-PIX-G7020,279.00,Canon,Wireless all-in-one,Plastic,,,,0.877,41.0,33.0,19.5,In Stock,4.1
+LG OLED65,OLED Televisions,LG-OLED-65,2500.00,LG,Stunning picture quality,Glass/Aluminum,,,,,,144.9,83.0,4.6,Low Stock,4.9
+Samsung Wind-Free,HVAC Systems,SAM-WF-003,920.00,Samsung,Wind-Free cooling,Plastic,,,,2.629,88.0,29.6,21.5,In Stock,4.5

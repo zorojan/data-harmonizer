@@ -1,21 +1,21 @@
-Product Name,Category,SKU,Unit Price,Make,Details,Availability,Rating,Resolution,Print Speed (ppm),Weight (kg),Color,Material
-"Sony Bravia 55""",LED Televisions,EN_SKU_1_0,1200,Sony,Smart TV with vivid display,In Stock,4.7,1080p,N/A,15.5,Black,Plastic/Metal
-LG OLED65,OLED Televisions,EN_SKU_1_1,2500,LG,Stunning OLED display,Low Stock,4.9,8K,N/A,18.2,Black,Glass/Aluminum
-HP LaserJet M404,Laser Printers,EN_SKU_9_0,350,HP,High-speed monochrome laser printer,In Stock,4.5,N/A,35 ppm,9.8,White,Plastic
-Ashley Sofa Set,Living Room Furniture,EN_SKU_4_1,749.5,Ashley Furniture,Comfortable and stylish,In Stock,4.6,N/A,N/A,65,Gray,Fabric
-IKEA Malm Bed,Bedroom Furniture,EN_SKU_4_0,199,IKEA,Modern minimalist design,In Stock,4.2,N/A,N/A,45,Wood,Wood
-Daikin Split AC,Air Conditioning Units,EN_SKU_8_0,680,Daikin,Energy-efficient cooling,In Stock,4.8,N/A,N/A,20.9,White,Plastic
-Drill DeWalt XR Cordless,Cordless Drills,S3-DR01,210,DeWalt,Powerful and versatile,In Stock,4.7,N/A,N/A,2.8,Yellow,Plastic/Metal
-Drill Black & Decker 20V,Electric Drills,S3-DR02,65,Black & Decker,Compact and easy to use,In Stock,4.3,N/A,N/A,1.8,Orange,Plastic
-XZ,Miscellaneous,S3-DR052,15,Generic,Miscellaneous item,Out of Stock,3,N/A,N/A,0.5,N/A,N/A
-"TCL Roku 43""",Smart Televisions,S2-TV02,320,TCL,Smart TV with Roku OS,In Stock,4.4,1080p,N/A,8,Black,Plastic
-Dell XPS 13,Portable Computers,EN_SKU_3_2,1300,Dell,Ultraportable laptop,In Stock,4.8,FHD,N/A,1.2,Silver,Aluminum
-Samsung QLED 4K,QLED Displays,EN_SKU_1_2,1500,Samsung,Vibrant QLED display,In Stock,4.7,4K,N/A,16,Black,Metal
-Screwdriver Set,Tool Kits,sadsa,25,Craftsman,Essential for home repairs,In Stock,4,N/A,N/A,0.8,Red/Black,Steel/Rubber
-Coffee Grinder,Kitchen Appliances,4515,45,Krups,Electric coffee bean grinder,In Stock,4.1,N/A,N/A,1,Silver,Stainless Steel
-Smartwatch XYZ,Wearable Electronics,544,199.99,XYZ Tech,Fitness tracking and notifications,In Stock,4.6,N/A,N/A,0.1,Black,Silicone
-Yoga Mat,Sports Equipment,4444,30,Gaiam,Non-slip surface,In Stock,4.2,N/A,N/A,1.2,Blue,Rubber
-Car Wax,Automotive Accessories,444,18,Turtle Wax,High-shine car protection,In Stock,4.5,N/A,N/A,0.4,N/A,Liquid
-Face Cream,Cosmetics,444,55,La Mer,Anti-aging moisturizer,In Stock,4.8,N/A,N/A,0.1,White,Cream
-Building Blocks,Children's Toys,x11,40,LEGO,Creative construction set,In Stock,4.7,N/A,N/A,1.5,Multi-color,Plastic
-Organic Coffee Beans,Food & Beverages,A151,15.99,Starbucks,Fair trade dark roast,In Stock,4.6,N/A,N/A,0.5,N/A,Beans
+Product Name,Category,SKU,Unit Price,Make,Details,Availability,Rating,Resolution,Print Speed (ppm),Weight (kg),Color,Material,Price (USD),Brand,RAM Size,Storage Capacity,Screen Inches,Build Material,Vendor,Manufacturer,Dimensions,Width,Height,Length,Screen Resolution,WT,Watt,Power (kW),kWatt
+"Sony Bravia 55""",LED Televisions,EN_SKU_1_0,1200,Sony,Smart TV with vivid display,In Stock,4.7,1080p,N/A,15.5,Black,Plastic/Metal,1200.00,Sony,N/A,N/A,N/A,Plastic/Metal,Sony,Sony,1230x710x58,1230,710,58,3840x2160,N/A,N/A,N/A,N/A
+LG OLED65,OLED Televisions,EN_SKU_1_1,2500,LG,Stunning OLED display,Low Stock,4.9,8K,N/A,18.2,Black,Glass/Aluminum,2500.00,LG,N/A,N/A,N/A,Glass/Aluminum,LG,LG,1449x830x46,1449,830,46,3840x2160,N/A,N/A,N/A,N/A
+HP LaserJet M404,Laser Printers,EN_SKU_9_0,350,HP,High-speed monochrome laser printer,In Stock,4.5,N/A,35 ppm,9.8,White,Plastic,350.00,HP,N/A,N/A,N/A,Plastic,HP,HP,400x300x200,400,300,200,1200x1200,530,530,0.53,0.5
+Ashley Sofa Set,Living Room Furniture,EN_SKU_4_1,749.5,Ashley Furniture,Comfortable and stylish,In Stock,4.6,N/A,N/A,65,Gray,Fabric,749.50,Ashley Furniture,N/A,N/A,N/A,Fabric,Ashley Furniture,Ashley Furniture,2400x1600x900,2400,1600,900,N/A,N/A,N/A,N/A,N/A
+IKEA Malm Bed,Bedroom Furniture,EN_SKU_4_0,199,IKEA,Modern minimalist design,In Stock,4.2,N/A,N/A,45,Wood,Wood,199.00,IKEA,N/A,N/A,N/A,Wood,IKEA,IKEA,2000x1600x300,2000,1600,300,N/A,N/A,N/A,N/A,N/A
+Daikin Split AC,Air Conditioning Units,EN_SKU_8_0,680,Daikin,Energy-efficient cooling,In Stock,4.8,N/A,N/A,20.9,White,Plastic,680.00,Daikin,N/A,N/A,N/A,Plastic,Daikin,Daikin,770x280x225,770,280,225,N/A,2243,2243,2.243,2.2
+Drill DeWalt XR Cordless,Cordless Drills,S3-DR01,210,DeWalt,Powerful and versatile,In Stock,4.7,N/A,N/A,2.8,Yellow,Plastic/Metal,210.00,DeWalt,N/A,N/A,N/A,Plastic/Metal,DeWalt,DeWalt,210x85x260,210,85,260,N/A,82,82,0.082,0.08
+Drill Black & Decker 20V,Electric Drills,S3-DR02,65,Black & Decker,Compact and easy to use,In Stock,4.3,N/A,N/A,1.8,Orange,Plastic,65.00,Black & Decker,N/A,N/A,N/A,Plastic,Black & Decker,Black & Decker,180x60x220,180,60,220,N/A,75,75,0.075,0.08
+XZ,Miscellaneous,S3-DR052,15,Generic,Miscellaneous item,Out of Stock,3,N/A,N/A,0.5,N/A,N/A,15.00,Generic,N/A,N/A,N/A,N/A,Generic,Generic,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A
+"TCL Roku 43""",Smart Televisions,S2-TV02,320,TCL,Smart TV with Roku OS,In Stock,4.4,1080p,N/A,8,Black,Plastic,320.00,TCL,N/A,N/A,N/A,Plastic,TCL,TCL,970x567x80,970,567,80,1920x1080,N/A,N/A,N/A,N/A
+Dell XPS 13,Portable Computers,EN_SKU_3_2,1300,Dell,Ultraportable laptop,In Stock,4.8,FHD,N/A,1.2,Silver,Aluminum,1300.00,Dell,N/A,N/A,N/A,Aluminum,Dell,Dell,296x199x15,296,199,15,1920x1200,55,55,0.055,0.06
+Samsung QLED 4K,QLED Displays,EN_SKU_1_2,1500,Samsung,Vibrant QLED display,In Stock,4.7,4K,N/A,16,Black,Metal,1500.00,Samsung,N/A,N/A,N/A,Metal,Samsung,Samsung,1450x830x60,1450,830,60,3840x2160,N/A,N/A,N/A,N/A
+Screwdriver Set,Tool Kits,sadsa,25,Craftsman,Essential for home repairs,In Stock,4,N/A,N/A,0.8,Red/Black,Steel/Rubber,25.00,Craftsman,N/A,N/A,N/A,Steel/Rubber,Craftsman,Craftsman,200x100x40,200,100,40,N/A,N/A,N/A,N/A,N/A
+Coffee Grinder,Kitchen Appliances,4515,45,Krups,Electric coffee bean grinder,In Stock,4.1,N/A,N/A,1,Silver,Stainless Steel,45.00,Krups,N/A,N/A,N/A,Stainless Steel,Krups,Krups,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A
+Smartwatch XYZ,Wearable Electronics,544,199.99,XYZ Tech,Fitness tracking and notifications,In Stock,4.6,N/A,N/A,0.1,Black,Silicone,199.99,XYZ Tech,N/A,N/A,N/A,Silicone,XYZ Tech,XYZ Tech,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A
+Yoga Mat,Sports Equipment,4444,30,Gaiam,Non-slip surface,In Stock,4.2,N/A,N/A,1.2,Blue,Rubber,30.00,Gaiam,N/A,N/A,N/A,Rubber,Gaiam,Gaiam,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A
+Car Wax,Automotive Accessories,444,18,Turtle Wax,High-shine car protection,In Stock,4.5,N/A,N/A,0.4,N/A,Liquid,18.00,Turtle Wax,N/A,N/A,N/A,Liquid,Turtle Wax,Turtle Wax,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A
+Face Cream,Cosmetics,444,55,La Mer,Anti-aging moisturizer,In Stock,4.8,N/A,N/A,0.1,White,Cream,55.00,La Mer,N/A,N/A,N/A,Cream,La Mer,La Mer,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A
+Building Blocks,Children's Toys,x11,40,LEGO,Creative construction set,In Stock,4.7,N/A,N/A,1.5,Multi-color,Plastic,40.00,LEGO,N/A,N/A,N/A,Plastic,LEGO,LEGO,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A
+Organic Coffee Beans,Food & Beverages,A151,15.99,Starbucks,Fair trade dark roast,In Stock,4.6,N/A,N/A,0.5,N/A,Beans,15.99,Starbucks,N/A,N/A,N/A,Beans,Starbucks,Starbucks,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A
