@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 from rapidfuzz import fuzz
-import nltk
-import spacy
 from sentence_transformers import SentenceTransformer, util
 import os
 
@@ -17,16 +15,7 @@ except Exception as e:
     df_param = pd.DataFrame()
     st.warning(f"Не удалось загрузить grouped_categories.csv: {e}")
 
-# --- Загрузка моделей spaCy и sentence-transformers ---
-@st.cache_resource(show_spinner=False)
-def get_spacy_model():
-    try:
-        return spacy.load("en_core_web_sm")
-    except OSError:
-        import subprocess
-        subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"])
-        return spacy.load("en_core_web_sm")
-
+# --- Загрузка модели sentence-transformers ---
 @st.cache_resource(show_spinner=False)
 def get_st_model():
     return SentenceTransformer('distiluse-base-multilingual-cased', device='cpu')
@@ -50,48 +39,36 @@ if not df_param.empty:
 
     columns = [c for c in all_columns if c not in excluded_cols]
 
-    st.markdown("#### 1. Выберите метод интеллектуального сравнения колонок")
-    method = st.selectbox(
-        "Метод сравнения:",
-        ["Best Practice Combined", "NLTK Jaccard", "spaCy Similarity", "Sentence-Transformers", "RapidFuzz"],
-        index=4
-    )
+    st.markdown("#### 1. Выберите методы интеллектуального сравнения колонок")
+    
+    # --- Checkboxes for method selection ---
+    col1, col2 = st.columns(2)
+    with col1:
+        use_rapidfuzz = st.checkbox("RapidFuzz", value=True, key="use_rapidfuzz")
+    with col2:
+        use_sentence_transformers = st.checkbox("Sentence-Transformers", value=False, key="use_st")
     
     # --- Individual Threshold Sliders ---
-    if method == "Best Practice Combined":
-        threshold_col = st.slider("Порог схожести для Best Practice (%)", 60, 100, 85, 1, key="bp_thresh")
-    elif method == "NLTK Jaccard":
-        threshold_col = st.slider("Порог схожести для NLTK Jaccard (%)", 60, 100, 85, 1, key="nltk_thresh")
-    elif method == "spaCy Similarity":
-        threshold_col = st.slider("Порог схожести для spaCy Similarity (%)", 60, 100, 85, 1, key="spacy_thresh")
-    elif method == "Sentence-Transformers":
-        threshold_col = st.slider("Порог схожести для Sentence-Transformers (%)", 60, 100, 85, 1, key="st_thresh")
-    elif method == "RapidFuzz":
-        threshold_col = st.slider("Порог схожести для RapidFuzz (%)", 60, 100, 85, 1, key="rf_thresh")
+    rf_threshold = None
+    st_threshold = None
+    
+    if use_rapidfuzz:
+        rf_threshold = st.slider("Порог схожести для RapidFuzz (%)", 60, 100, 85, 1, key="rf_thresh")
+    
+    if use_sentence_transformers:
+        st_threshold = st.slider("Порог схожести для Sentence-Transformers (%)", 60, 100, 85, 1, key="st_thresh")
 
     group_diff_sources = st.checkbox(
         "Группировать только если параметры из разных источников (source_file)",
         value=True,
         help="Если включено, автоматическое объединение будет только для пар, где значения из разных source_file."
     )
-    similar_pairs = []
-    nlp = get_spacy_model()
-    def lemmatize(text):
-        doc = nlp(text.lower())
-        return " ".join([token.lemma_ for token in doc if not token.is_stop and not token.is_punct])
-    from nltk.corpus import wordnet as wn
-    nltk.download('wordnet', quiet=True)
-    def are_synonyms(word1, word2):
-        syns1 = set([l.name() for s in wn.synsets(word1) for l in s.lemmas()])
-        syns2 = set([l.name() for s in wn.synsets(word2) for l in s.lemmas()])
-        return len(syns1 & syns2) > 0
-    import re
-    def extract_unit(text):
-        match = re.findall(r"\\b([a-zA-Z]{1,4})\\b", text)
-        return set(match)
+    
     # --- Автоматическое определение похожих пар ---
-    if method == "Best Practice Combined":
-        st_model = get_st_model()
+    similar_pairs = []
+    
+    # RapidFuzz method
+    if use_rapidfuzz and rf_threshold is not None:
         for i in range(len(columns)):
             for j in range(i+1, len(columns)):
                 col1, col2 = columns[i], columns[j]
@@ -102,107 +79,52 @@ if not df_param.empty:
                         sources2 = set(df_param[df_param[col2].notna()]['source_file'])
                         if not (sources1 and sources2 and len(sources1 & sources2) < max(len(sources1), len(sources2))):
                             continue
-                lem1, lem2 = lemmatize(col1), lemmatize(col2)
-                emb1 = st_model.encode([lem1], convert_to_tensor=True)
-                emb2 = st_model.encode([lem2], convert_to_tensor=True)
-                st_score = util.cos_sim(emb1, emb2)[0][0].item()
-                if st_score > 0.7:
-                    similar_pairs.append({
-                        "Column 1": col1,
-                        "Column 2": col2,
-                        "Score": int(st_score*100),
-                        "Method": "SentenceTr"
-                    })
-                    continue
-                rf_score = fuzz.token_sort_ratio(lem1, lem2)
-                if rf_score > 80:
+                rf_score = fuzz.token_sort_ratio(col1, col2)
+                if rf_score >= rf_threshold:
                     similar_pairs.append({
                         "Column 1": col1,
                         "Column 2": col2,
                         "Score": rf_score,
                         "Method": "RapidFuzz"
                     })
-                    continue
-                if len(lem1.split()) == 1 and len(lem2.split()) == 1 and are_synonyms(lem1, lem2):
-                    similar_pairs.append({
-                        "Column 1": col1,
-                        "Column 2": col2,
-                        "Score": 100,
-                        "Method": "WordNet Synonym"
-                    })
-                    continue
-                units1, units2 = extract_unit(col1), extract_unit(col2)
-                if units1 and units2 and units1 & units2:
-                    similar_pairs.append({
-                        "Column 1": col1,
-                        "Column 2": col2,
-                        "Score": 90,
-                        "Method": "Unit Match"
-                    })
-        sim_col_df = pd.DataFrame([p for p in similar_pairs if p["Score"] >= threshold_col]) if similar_pairs else pd.DataFrame()
-    elif method == "NLTK Jaccard":
-        from nltk.corpus import stopwords
-        nltk.download('stopwords', quiet=True)
-        stop_words = set(stopwords.words('english'))
-        def preprocess(text):
-            return ' '.join([w for w in text.lower().split() if w not in stop_words])
-        for i in range(len(columns)):
-            for j in range(i+1, len(columns)):
-                col1, col2 = columns[i], columns[j]
-                set1 = set(preprocess(col1).split())
-                set2 = set(preprocess(col2).split())
-                if set1 or set2:
-                    jaccard = int(100 * len(set1 & set2) / max(1, len(set1 | set2)))
-                else:
-                    jaccard = 0
-                if jaccard >= threshold_col:
-                    similar_pairs.append({
-                        "Column 1": col1,
-                        "Column 2": col2,
-                        "NLTK Jaccard": jaccard
-                    })
-        sim_col_df = pd.DataFrame(similar_pairs)
-    elif method == "spaCy Similarity":
-        nlp = get_spacy_model()
-        for i in range(len(columns)):
-            for j in range(i+1, len(columns)):
-                col1, col2 = columns[i], columns[j]
-                doc1, doc2 = nlp(col1), nlp(col2)
-                spacy_score = int(doc1.similarity(doc2) * 100)
-                if spacy_score >= threshold_col:
-                    similar_pairs.append({
-                        "Column 1": col1,
-                        "Column 2": col2,
-                        "spaCy": spacy_score
-                    })
-        sim_col_df = pd.DataFrame(similar_pairs)
-    elif method == "Sentence-Transformers":
+    
+    # Sentence-Transformers method
+    if use_sentence_transformers and st_threshold is not None:
+        if len(columns) > 30:
+            st.warning(f"Внимание: выбрано {len(columns)} колонок. Сравнение с Sentence-Transformers может занять значительное время!")
         st_model = get_st_model()
-        for i in range(len(columns)):
-            for j in range(i+1, len(columns)):
-                col1, col2 = columns[i], columns[j]
-                emb1 = st_model.encode([col1], convert_to_tensor=True)
-                emb2 = st_model.encode([col2], convert_to_tensor=True)
-                st_score = int(util.cos_sim(emb1, emb2)[0][0].item() * 100)
-                if st_score >= threshold_col:
-                    similar_pairs.append({
-                        "Column 1": col1,
-                        "Column 2": col2,
-                        "SentenceTr": st_score
-                    })
-        sim_col_df = pd.DataFrame(similar_pairs)
-    elif method == "RapidFuzz":
-        for i in range(len(columns)):
-            for j in range(i+1, len(columns)):
-                col1, col2 = columns[i], columns[j]
-                rf_score = fuzz.token_sort_ratio(col1, col2)
-                if rf_score >= threshold_col:
-                    similar_pairs.append({
-                        "Column 1": col1,
-                        "Column 2": col2,
-                        "RapidFuzz": rf_score
-                    })
-        sim_col_df = pd.DataFrame(similar_pairs)
+        with st.spinner("Вычисление схожести с помощью Sentence-Transformers, пожалуйста, подождите..."):
+            # Precompute all embeddings ONCE
+            embeddings = st_model.encode(columns, convert_to_tensor=True)
+            for i in range(len(columns)):
+                for j in range(i+1, len(columns)):
+                    col1, col2 = columns[i], columns[j]
+                    # Если включен фильтр по источникам, проверяем что есть хотя бы одна строка с разными source_file
+                    if group_diff_sources:
+                        if 'source_file' in df_param.columns:
+                            sources1 = set(df_param[df_param[col1].notna()]['source_file'])
+                            sources2 = set(df_param[df_param[col2].notna()]['source_file'])
+                            if not (sources1 and sources2 and len(sources1 & sources2) < max(len(sources1), len(sources2))):
+                                continue
+                    st_score = int(util.cos_sim(embeddings[i], embeddings[j]).item() * 100)
+                    if st_score >= st_threshold:
+                        similar_pairs.append({
+                            "Column 1": col1,
+                            "Column 2": col2,
+                            "Score": st_score,
+                            "Method": "SentenceTransformers"
+                        })
+    
+    # Remove duplicates and create DataFrame
+    seen_pairs = set()
+    unique_pairs = []
+    for pair in similar_pairs:
+        pair_key = tuple(sorted([pair["Column 1"], pair["Column 2"]]))
+        if pair_key not in seen_pairs:
+            seen_pairs.add(pair_key)
+            unique_pairs.append(pair)
+    
+    sim_col_df = pd.DataFrame(unique_pairs) if unique_pairs else pd.DataFrame()
     st.markdown("#### 2. Автоматически найденные пары для объединения")
     if not sim_col_df.empty:
         st.dataframe(sim_col_df.sort_values(sim_col_df.columns[-1], ascending=False).reset_index(drop=True))
