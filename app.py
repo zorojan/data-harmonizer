@@ -566,10 +566,17 @@ else:
 
 
 # --- Кнопка перехода на страницу оптимизации параметров ---
+
 if df is not None:
     st.markdown("---")
-    st.session_state['final_df_for_param_page'] = df.copy()
-    if st.button("Перейти к оптимизации параметров", key="go_to_param_page"):
+    if st.button("Сохранить данные и перейти к оптимизации параметров", key="go_to_param_page"):
+        # Сохраняем финальный результат в grouped_categories.csv
+        save_path = os.path.join(os.getcwd(), "grouped_categories.csv")
+        try:
+            df.to_csv(save_path, index=False, encoding="utf-8-sig")
+            st.info(f"Финальный результат сохранён в: {save_path}")
+        except Exception as e:
+            st.warning(f"Не удалось сохранить grouped_categories.csv: {e}")
         st.switch_page('pages/param_processing.py')
 
 st.markdown("**Instructions:** Upload CSVs, select the category column, choose an embedding model, adjust clustering, and download the mapping.")
