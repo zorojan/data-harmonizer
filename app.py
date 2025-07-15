@@ -21,7 +21,7 @@ def robust_read_csv(file_or_path):
     More robust CSV reading function that tries different encodings,
     delimiters, and handles bad lines to prevent ParserError.
     """
-    # For file-like objects from upload, we need to be able to seek
+    # For file-like objects from upload, we need to be able to seek 
     is_file_like = hasattr(file_or_path, 'seek')
 
     # List of configurations to try
