@@ -126,7 +126,13 @@ def analyze_column_statistics_simple(df, column):
                 try:
                     numeric_values.append(float(number))
                     unit_clean = unit.strip()
-                    if unit_clean and len(unit_clean) < 15:  # Разумная длина единицы
+                    # Новый фильтр: игнорируем 'x', '-', ':', '' и неалфавитные "единицы"
+                    if (
+                        unit_clean
+                        and len(unit_clean) < 15
+                        and unit_clean.lower() not in ['x', '-', ':', '']
+                        and re.search(r'[a-zA-Zа-яё]', unit_clean)
+                    ):
                         units_found[unit_clean] += 1
                 except:
                     continue
@@ -212,38 +218,31 @@ def get_transformer_pipeline():
 
 class IntelligentUnitExtractor:
     """Интеллектуальный экстрактор единиц измерения"""
-    
-    def __init__(self):
-        self.transformer_pipeline = get_transformer_pipeline() if use_transformers else None
-    
+    def __init__(self, use_quantulum=True, use_transformers=True, use_pint=True):
+        self._use_quantulum = use_quantulum
+        self._use_transformers = use_transformers
+        self._use_pint = use_pint
+        self.transformer_pipeline = get_transformer_pipeline() if self._use_transformers else None
+
     def extract_with_quantulum(self, text):
-        """Оптимизированное извлечение единиц с помощью Quantulum3 и Pint"""
-        if not QUANTULUM_AVAILABLE or not use_quantulum:
+        if not QUANTULUM_AVAILABLE or not self._use_quantulum:
             return []
-        
         try:
             parsed = quantulum3.parser.parse(str(text))
             results = []
-            
             for quantity in parsed:
                 if quantity.value and quantity.unit:
                     unit_name = quantity.unit.name
                     unit_symbol = getattr(quantity.unit, 'symbol', unit_name)
-                    
-                    # Проверяем единицу через Pint для стандартизации
                     pint_validation = self.validate_with_pint(unit_symbol)
-                    
                     if pint_validation and pint_validation.get('is_valid'):
-                        # Используем стандартизированную единицу от Pint
                         canonical_unit = pint_validation.get('canonical_unit', unit_symbol)
                         dimension = pint_validation.get('dimensionality', quantity.unit.dimension.name if quantity.unit.dimension else '')
-                        confidence = 0.95  # Очень высокая уверенность для Quantulum + Pint
+                        confidence = 0.95
                     else:
-                        # Используем данные от Quantulum3
                         canonical_unit = unit_symbol
                         dimension = quantity.unit.dimension.name if quantity.unit.dimension else ''
-                        confidence = 0.8  # Высокая уверенность только для Quantulum
-                    
+                        confidence = 0.8
                     results.append({
                         'value': quantity.value,
                         'unit': canonical_unit,
@@ -253,36 +252,26 @@ class IntelligentUnitExtractor:
                         'method': 'quantulum3_pint' if pint_validation and pint_validation.get('is_valid') else 'quantulum3',
                         'pint_validation': pint_validation
                     })
-            
             return results
-        except Exception as e:
+        except Exception:
             return []
-    
+
     def extract_with_transformers(self, text):
-        """Оптимизированное извлечение единиц с помощью Transformer-NER и Pint"""
-        if not TRANSFORMERS_AVAILABLE or not use_transformers or not self.transformer_pipeline:
+        if not TRANSFORMERS_AVAILABLE or not self._use_transformers or not self.transformer_pipeline:
             return []
-        
         try:
-            # Простой паттерн для поиска чисел с единицами
-            pattern = r'(\d+(?:\.\d+)?)\s*([a-zA-Zа-яё°"\'\s]+)'
+            pattern = r"(\d+(?:\.\d+)?)\s*([a-zA-Zа-яё°'\"\s]+)"
             matches = re.findall(pattern, str(text).lower())
-            
             results = []
             for value, unit in matches:
                 try:
                     numeric_value = float(value)
                     unit_clean = unit.strip()
-                    
                     if len(unit_clean) > 0 and len(unit_clean) < 20:
-                        # Проверяем единицу через Pint
                         pint_validation = self.validate_with_pint(unit_clean)
-                        
                         if pint_validation and pint_validation.get('is_valid'):
-                            # Если Pint распознал единицу, используем высокую уверенность
                             confidence = 0.9 if pint_validation.get('method') == 'pint_exact' else 0.7
                             canonical_unit = pint_validation.get('canonical_unit', unit_clean)
-                            
                             results.append({
                                 'value': numeric_value,
                                 'unit': canonical_unit,
@@ -293,86 +282,101 @@ class IntelligentUnitExtractor:
                                 'pint_validation': pint_validation
                             })
                         else:
-                            # Если Pint не распознал, используем низкую уверенность
                             results.append({
                                 'value': numeric_value,
                                 'unit': unit_clean,
                                 'unit_symbol': unit_clean,
                                 'dimension': 'unknown',
-                                'confidence': 0.4,  # Низкая уверенность для нераспознанных единиц
+                                'confidence': 0.4,
                                 'method': 'transformers_only'
                             })
                 except ValueError:
                     continue
-            
             return results
-        except Exception as e:
+        except Exception:
             return []
-    
+
     def validate_with_pint(self, unit_string):
-        """Улучшенная валидация единицы измерения с помощью Pint"""
-        if not PINT_AVAILABLE or not use_pint:
+        if not PINT_AVAILABLE or not self._use_pint:
             return None
-        
         try:
-            # Очистка строки единицы
             unit_clean = re.sub(r'[^\w°]', '', str(unit_string).strip())
-            
-            # Сначала пытаемся найти точное соответствие
             try:
                 unit = ureg.parse_expression(unit_clean)
+                
+                # ИСПРАВЛЕНИЕ: Получаем человекочитаемое название размерности
+                dimensionality_str = str(unit.dimensionality)
+                
+                # Улучшаем базовые размерности для читаемости
+                if dimensionality_str == '[mass] * [length] ** 2 / [time] ** 3':
+                    dimension_name = 'power'
+                elif dimensionality_str == '[mass] * [length] ** 2 / [time] ** 2':
+                    dimension_name = 'energy'
+                elif dimensionality_str == '[length]':
+                    dimension_name = 'length'
+                elif dimensionality_str == '[mass]':
+                    dimension_name = 'mass'
+                elif dimensionality_str == '[time]':
+                    dimension_name = 'time'
+                elif dimensionality_str == '' or dimensionality_str == '1':
+                    dimension_name = 'dimensionless'
+                else:
+                    dimension_name = dimensionality_str
+                
                 return {
                     'unit_str': str(unit),
-                    'dimensionality': str(unit.dimensionality),
+                    'dimensionality': dimension_name,  # Человекочитаемое название
                     'is_valid': True,
-                    'canonical_unit': str(unit.to_base_units().units),
+                    'canonical_unit': str(unit.units),  # БЕЗ to_base_units()!
                     'method': 'pint_exact'
                 }
             except:
                 pass
-            
-            # Если точное соответствие не найдено, пытаемся найти похожие единицы
-            # Используем встроенную функцию Pint для поиска
             try:
-                # Поиск по частичному совпадению в базе Pint
                 for unit_name in ureg._units.keys():
                     if unit_clean.lower() in str(unit_name).lower() or str(unit_name).lower() in unit_clean.lower():
                         unit = ureg.parse_expression(unit_name)
+                        
+                        # Та же логика для fuzzy поиска
+                        dimensionality_str = str(unit.dimensionality)
+                        if dimensionality_str == '[mass] * [length] ** 2 / [time] ** 3':
+                            dimension_name = 'power'
+                        elif dimensionality_str == '[mass] * [length] ** 2 / [time] ** 2':
+                            dimension_name = 'energy'
+                        elif dimensionality_str == '[length]':
+                            dimension_name = 'length'
+                        elif dimensionality_str == '[mass]':
+                            dimension_name = 'mass'
+                        elif dimensionality_str == '[time]':
+                            dimension_name = 'time'
+                        elif dimensionality_str == '' or dimensionality_str == '1':
+                            dimension_name = 'dimensionless'
+                        else:
+                            dimension_name = dimensionality_str
+                        
                         return {
                             'unit_str': str(unit),
-                            'dimensionality': str(unit.dimensionality),
+                            'dimensionality': dimension_name,  # Человекочитаемое название
                             'is_valid': True,
-                            'canonical_unit': str(unit.to_base_units().units),
+                            'canonical_unit': str(unit.units),  # БЕЗ to_base_units()!
                             'method': 'pint_fuzzy',
                             'original_input': unit_clean,
                             'matched_unit': unit_name
                         }
             except:
                 pass
-            
             return {'is_valid': False, 'method': 'pint', 'error': 'No match found'}
-            
         except Exception as e:
             return {'is_valid': False, 'method': 'pint', 'error': str(e)}
-    
+
     def extract_all_methods(self, text):
-        """Комбинированное извлечение всеми доступными методами"""
         all_results = []
-        
-        # Quantulum3
-        quantulum_results = self.extract_with_quantulum(text)
-        all_results.extend(quantulum_results)
-        
-        # Transformers
-        transformer_results = self.extract_with_transformers(text)
-        all_results.extend(transformer_results)
-        
-        # Валидация результатов с Pint
+        all_results.extend(self.extract_with_quantulum(text))
+        all_results.extend(self.extract_with_transformers(text))
         for result in all_results:
             pint_validation = self.validate_with_pint(result['unit'])
             if pint_validation:
                 result['pint_validation'] = pint_validation
-        
         return all_results
 
 def extract_numeric_values_intelligent(text):
@@ -394,57 +398,74 @@ def extract_numeric_values_intelligent(text):
     
     return filtered_results
 
-def detect_measurement_type_intelligent(column_name, values_sample):
-    """Интеллектуальное определение типа измерения"""
-    # Используем глобальный экстрактор
-    if not hasattr(detect_measurement_type_intelligent, '_extractor'):
-        detect_measurement_type_intelligent._extractor = IntelligentUnitExtractor()
-    
-    extractor = detect_measurement_type_intelligent._extractor
-    
-    # Анализируем образцы значений
+def detect_measurement_type_intelligent(column_name, values_sample, use_quantulum=None, use_transformers=None, use_pint=None):
+    """Интеллектуальное определение типа измерения с учетом контекста колонки
+    use_quantulum/use_transformers/use_pint: если None — использовать глобальные переменные, если True/False — форсировать режим"""
+    # Определяем какие методы использовать
+    uq = use_quantulum if use_quantulum is not None else globals().get('use_quantulum', True)
+    ut = use_transformers if use_transformers is not None else globals().get('use_transformers', True)
+    up = use_pint if use_pint is not None else globals().get('use_pint', True)
+    extractor = IntelligentUnitExtractor(use_quantulum=uq, use_transformers=ut, use_pint=up)
     dimension_counter = Counter()
     unit_counter = Counter()
-    
+    context_unit = extract_unit_from_context_optimized(column_name, None, None)
+    if context_unit:
+        pint_validation = extractor.validate_with_pint(context_unit)
+        if pint_validation and pint_validation.get('is_valid'):
+            dimension = pint_validation.get('dimensionality', 'unknown')
+            canonical_unit = pint_validation.get('canonical_unit', context_unit)
+            dimension_counter[dimension] = len(values_sample)
+            unit_counter[canonical_unit] = len(values_sample)
+            numeric_count = 0
+            for value in values_sample[:max_samples]:
+                if pd.notna(value):
+                    value_str = str(value).strip()
+                    if re.search(r'\d+\.?\d*', value_str):
+                        numeric_count += 1
+            if numeric_count / len(values_sample) > 0.5:
+                return {
+                    'primary_dimension': dimension,
+                    'confidence': 0.95,  # ПОВЫШЕННАЯ уверенность для контекста
+                    'common_units': [canonical_unit],
+                    'analysis_summary': {
+                        'dimensions_found': {dimension: len(values_sample)},
+                        'units_found': {canonical_unit: len(values_sample)},
+                        'context_unit': context_unit,
+                        'method': 'context_analysis_priority'  # Указываем приоритетный метод
+                    }
+                }
     for value in values_sample[:max_samples]:
         if pd.notna(value):
             extractions = extractor.extract_all_methods(value)
-            
             for extraction in extractions:
                 if extraction.get('confidence', 0) >= confidence_threshold:
-                    # Подсчитываем размерности
                     dimension = extraction.get('dimension', 'unknown')
                     if dimension and dimension != 'unknown':
                         dimension_counter[dimension] += 1
-                    
-                    # Подсчитываем единицы
                     unit = extraction.get('unit', '')
                     if unit:
                         unit_counter[unit] += 1
-                    
-                    # Если есть валидация Pint, используем её
                     pint_val = extraction.get('pint_validation', {})
                     if pint_val.get('is_valid'):
                         pint_dimension = pint_val.get('dimensionality', '')
                         if pint_dimension:
-                            dimension_counter[pint_dimension] += 2  # Больший вес для Pint
-    
-    # Определяем наиболее вероятный тип
+                            dimension_counter[pint_dimension] += 2
     most_common_dimension = dimension_counter.most_common(1)
     most_common_unit = unit_counter.most_common(3)
-    
     return {
         'primary_dimension': most_common_dimension[0][0] if most_common_dimension else 'unknown',
         'confidence': most_common_dimension[0][1] / len(values_sample) if most_common_dimension else 0,
         'common_units': [unit for unit, count in most_common_unit],
         'analysis_summary': {
             'dimensions_found': dict(dimension_counter),
-            'units_found': dict(unit_counter)
+            'units_found': dict(unit_counter),
+            'context_unit': context_unit,
+            'method': 'mixed_analysis'
         }
     }
 
-def extract_unit_from_context_optimized(column_name, product_name=None, category=None):
-    """Оптимизированное извлечение единицы измерения с использованием Pint"""
+def analyze_product_context_for_units(column_name, product_name=None, category=None, description=None):
+    """AI-анализ контекста продукта для определения логичных единиц измерения"""
     
     if not PINT_AVAILABLE:
         return None
@@ -453,6 +474,157 @@ def extract_unit_from_context_optimized(column_name, product_name=None, category
     column_lower = column_name.lower()
     product_lower = str(product_name).lower() if product_name else ""
     category_lower = str(category).lower() if category else ""
+    description_lower = str(description).lower() if description else ""
+    
+    # Объединяем весь контекст
+    full_context = f"{column_lower} {product_lower} {category_lower} {description_lower}"
+    
+    # === ПРАВИЛА ДЛЯ РАЗНЫХ ТИПОВ ПРОДУКТОВ ===
+    
+    # 1. НОУТБУКИ / КОМПЬЮТЕРЫ
+    if any(tech_word in full_context for tech_word in [
+        'laptop', 'notebook', 'computer', 'pc', 'ноутбук', 'компьютер'
+    ]):
+        # Размеры ноутбуков обычно в мм
+        if any(dim_word in column_lower for dim_word in ['dimension', 'size', 'размер']):
+            return 'mm'
+            
+        # Экран ноутбука в дюймах
+        if any(screen_word in column_lower for screen_word in ['screen', 'display', 'экран']):
+            if 'resolution' not in column_lower:  # Не разрешение
+                return 'inch'
+                
+        # Разрешение экрана в пикселях
+        if any(res_word in column_lower for res_word in ['resolution', 'разрешение']):
+            return 'pixel'
+            
+        # Вес ноутбука в кг
+        if any(weight_word in column_lower for weight_word in ['weight', 'вес']):
+            return 'kg'
+            
+        # Память в GB
+        if any(mem_word in column_lower for mem_word in ['ram', 'memory', 'storage', 'память']):
+            return 'GB'
+    
+    # 2. ТЕЛЕФОНЫ / СМАРТФОНЫ
+    if any(phone_word in full_context for phone_word in [
+        'phone', 'smartphone', 'mobile', 'телефон', 'смартфон'
+    ]):
+        # Размеры телефонов обычно в мм
+        if any(dim_word in column_lower for dim_word in ['dimension', 'size', 'width', 'height', 'length']):
+            return 'mm'
+            
+        # Экран телефона в дюймах
+        if any(screen_word in column_lower for screen_word in ['screen', 'display']):
+            if 'resolution' not in column_lower:
+                return 'inch'
+                
+        # Разрешение в пикселях
+        if 'resolution' in column_lower:
+            return 'pixel'
+            
+        # Вес телефона в граммах (обычно легкие)
+        if 'weight' in column_lower:
+            return 'g'
+    
+    # 3. ТЕЛЕВИЗОРЫ / МОНИТОРЫ
+    if any(tv_word in full_context for tv_word in [
+        'tv', 'television', 'monitor', 'телевизор', 'монитор'
+    ]):
+        # Экран ТВ/монитора в дюймах
+        if any(screen_word in column_lower for screen_word in ['screen', 'display', 'size']):
+            if 'resolution' not in column_lower:
+                return 'inch'
+                
+        # Разрешение в пикселях
+        if 'resolution' in column_lower:
+            return 'pixel'
+            
+        # Размеры ТВ в мм или см
+        if any(dim_word in column_lower for dim_word in ['dimension', 'width', 'height']):
+            return 'mm'
+    
+    # 4. БЫТОВАЯ ТЕХНИКА
+    if any(appliance_word in full_context for appliance_word in [
+        'refrigerator', 'washing', 'dishwasher', 'oven', 'холодильник', 'стиральная', 'посудомойка'
+    ]):
+        # Размеры крупной техники в см
+        if any(dim_word in column_lower for dim_word in ['dimension', 'size', 'width', 'height']):
+            return 'cm'
+            
+        # Вес крупной техники в кг
+        if 'weight' in column_lower:
+            return 'kg'
+            
+        # Мощность в ваттах
+        if any(power_word in column_lower for power_word in ['power', 'мощность']):
+            return 'W'
+    
+    # 5. АВТОМОБИЛИ
+    if any(car_word in full_context for car_word in [
+        'car', 'auto', 'vehicle', 'машина', 'автомобиль'
+    ]):
+        # Размеры авто в метрах
+        if any(dim_word in column_lower for dim_word in ['length', 'width', 'height']):
+            return 'm'
+            
+        # Мощность двигателя в лошадиных силах или кВт
+        if any(power_word in column_lower for power_word in ['power', 'engine', 'мощность']):
+            return 'kW'
+    
+    # === ОБЩИЕ ПРАВИЛА ПО ТИПУ ПАРАМЕТРА ===
+    
+    # Разрешение экрана всегда в пикселях
+    if any(res_word in column_lower for res_word in ['resolution', 'разрешение']) or \
+       re.search(r'\d+x\d+', str(column_name)):  # Паттерн 1920x1080
+        return 'pixel'
+    
+    # Экраны обычно в дюймах
+    if any(screen_word in column_lower for screen_word in ['screen', 'display', 'inch', 'дюйм']):
+        return 'inch'
+    
+    # Вес
+    if any(weight_word in column_lower for weight_word in ['weight', 'вес']):
+        # Определяем по контексту: легкие устройства в граммах, тяжелые в кг
+        if any(light_device in full_context for light_device in ['phone', 'tablet', 'телефон']):
+            return 'g'
+        else:
+            return 'kg'
+    
+    # Мощность
+    if any(power_word in column_lower for power_word in ['power', 'watt', 'мощность']):
+        return 'W'
+    
+    # Память/хранилище
+    if any(mem_word in column_lower for mem_word in ['memory', 'storage', 'ram', 'ssd', 'память']):
+        return 'GB'
+    
+    # Размеры - определяем по контексту устройства
+    if any(dim_word in column_lower for dim_word in ['dimension', 'size', 'width', 'height', 'length']):
+        # Мелкие устройства в мм
+        if any(small_device in full_context for small_device in [
+            'phone', 'tablet', 'laptop', 'телефон', 'планшет', 'ноутбук'
+        ]):
+            return 'mm'
+        # Средние устройства в см
+        elif any(medium_device in full_context for medium_device in [
+            'tv', 'monitor', 'телевизор', 'монитор'
+        ]):
+            return 'cm'
+        # Крупные объекты в метрах
+        else:
+            return 'm'
+    
+    return None
+
+def extract_unit_from_context_optimized(column_name, product_name=None, category=None, description=None):
+    """Улучшенное извлечение единицы измерения с AI-анализом контекста продукта"""
+    
+    if not PINT_AVAILABLE:
+        return None
+    
+    # Приводим к нижнему регистру для анализа
+    column_lower = column_name.lower()
     
     # 1. Сначала ищем в скобках (как раньше)
     bracket_match = re.search(r'\(([^)]+)\)', column_name)
@@ -466,7 +638,6 @@ def extract_unit_from_context_optimized(column_name, product_name=None, category
             pass
     
     # 2. Ищем единицы в самом названии колонки
-    # Разбиваем название на слова и проверяем каждое через Pint
     words = re.findall(r'\b\w+\b', column_lower)
     for word in words:
         if len(word) > 1:  # Пропускаем односимвольные слова
@@ -476,8 +647,17 @@ def extract_unit_from_context_optimized(column_name, product_name=None, category
             except:
                 continue
     
-    # 3. Специальные правила для контекста (минимальные)
-    context_text = f"{column_lower} {product_lower} {category_lower}"
+    # 3. НОВЫЙ: AI-анализ контекста продукта
+    ai_unit = analyze_product_context_for_units(column_name, product_name, category, description)
+    if ai_unit:
+        try:
+            ureg.parse_expression(ai_unit)
+            return ai_unit
+        except:
+            pass
+    
+    # 4. Базовые правила (fallback)
+    context_text = f"{column_lower} {str(product_name).lower() if product_name else ''} {str(category).lower() if category else ''}"
     
     # Экраны обычно в дюймах
     if any(screen_word in context_text for screen_word in ['screen', 'display', 'экран', 'диагональ']):
@@ -514,8 +694,8 @@ def extract_unit_from_context_optimized(column_name, product_name=None, category
     return None
 
 # Групповое определение единиц для категорий
-def analyze_units_by_category(df, column_name, category_column='group_name', sample_size=5):
-    """Анализ единиц измерения по категориям с минимальной выборкой"""
+def analyze_units_by_category(df, column_name, category_column='group_name', sample_size=3):
+    """Улучшенный анализ единиц измерения по категориям с AI-контекстом продукта"""
     
     if not PINT_AVAILABLE:
         return {}
@@ -530,41 +710,73 @@ def analyze_units_by_category(df, column_name, category_column='group_name', sam
                 category_column = alt_col
                 break
         else:
-            # Если нет колонки категории, используем общий анализ
-            return {'default': extract_unit_from_context_optimized(column_name, None, None)}
+            # Если нет колонки категории, используем общий AI-анализ
+            sample_row = df.iloc[0] if len(df) > 0 else {}
+            product_name = sample_row.get('product_name', sample_row.get('name', ''))
+            description = sample_row.get('description', '')
+            ai_unit = analyze_product_context_for_units(column_name, product_name, None, description)
+            return {'default': ai_unit or extract_unit_from_context_optimized(column_name, product_name, None, description)}
     
     for category, group_df in df.groupby(category_column):
         if pd.isna(category):
             continue
             
-        # Берем только несколько образцов из каждой категории
-        sample_values = group_df[column_name].dropna().head(sample_size)
+        # Берем образцы товаров из каждой категории для AI-анализа
+        sample_rows = group_df.head(sample_size)
         
-        if len(sample_values) == 0:
+        if len(sample_rows) == 0:
             continue
         
-        # Определяем единицу для этой категории
+        # === НОВЫЙ: AI-АНАЛИЗ 2-3 ТОВАРОВ ИЗ КАТЕГОРИИ ===
+        ai_suggestions = []
+        
+        for idx, row in sample_rows.iterrows():
+            product_name = row.get('product_name', row.get('name', ''))
+            description = row.get('description', '')
+            
+            # AI-анализ контекста каждого товара
+            ai_unit = analyze_product_context_for_units(
+                column_name, product_name, str(category), description
+            )
+            
+            if ai_unit:
+                ai_suggestions.append(ai_unit)
+        
+        # Выбираем наиболее частую AI-рекомендацию
         category_unit = None
+        if ai_suggestions:
+            unit_counter = Counter(ai_suggestions)
+            most_common_ai_unit = unit_counter.most_common(1)
+            if most_common_ai_unit:
+                category_unit = most_common_ai_unit[0][0]
         
-        # Сначала пытаемся извлечь единицы из самих значений
-        for value in sample_values:
-            value_str = str(value).strip()
-            # Ищем паттерн число + единица
-            unit_match = re.search(r'\d+\.?\d*\s*([a-zA-Zа-яё°"\'\s]+)', value_str)
-            if unit_match:
-                potential_unit = unit_match.group(1).strip()
-                if potential_unit and len(potential_unit) < 10:
-                    # Проверяем через Pint
-                    try:
-                        ureg.parse_expression(potential_unit)
-                        category_unit = potential_unit
-                        break
-                    except:
-                        continue
-        
-        # Если не нашли в значениях, используем контекстный анализ
+        # === FALLBACK: АНАЛИЗ ЗНАЧЕНИЙ В КОЛОНКЕ ===
         if not category_unit:
-            category_unit = extract_unit_from_context_optimized(column_name, None, str(category))
+            # Анализируем сами значения в колонке
+            sample_values = group_df[column_name].dropna().head(sample_size)
+            
+            for value in sample_values:
+                value_str = str(value).strip()
+                # Ищем паттерн число + единица
+                unit_match = re.search(r'\d+\.?\d*\s*([a-zA-Zа-яё°"\'\s]+)', value_str)
+                if unit_match:
+                    potential_unit = unit_match.group(1).strip()
+                    if potential_unit and len(potential_unit) < 10:
+                        # Проверяем через Pint
+                        try:
+                            ureg.parse_expression(potential_unit)
+                            category_unit = potential_unit
+                            break
+                        except:
+                            continue
+        
+        # === ПОСЛЕДНИЙ FALLBACK: КОНТЕКСТНЫЙ АНАЛИЗ ===
+        if not category_unit:
+            # Используем общий контекстный анализ с информацией о товаре
+            sample_row = sample_rows.iloc[0]
+            product_name = sample_row.get('product_name', sample_row.get('name', ''))
+            description = sample_row.get('description', '')
+            category_unit = extract_unit_from_context_optimized(column_name, product_name, str(category), description)
         
         if category_unit:
             category_units[str(category)] = category_unit
@@ -579,8 +791,8 @@ def get_category_units_cache(df_hash, column_name, category_column):
     # В реальности здесь будет передан весь DataFrame
     return {}
 
-def standardize_value_intelligent_optimized(value, target_format=None, column_name=None, product_name=None, category=None, category_units=None):
-    """Оптимизированная интеллектуальная стандартизация значения с групповым определением единиц"""
+def standardize_value_intelligent_optimized(value, target_format=None, column_name=None, product_name=None, category=None, category_units=None, description=None):
+    """Оптимизированная интеллектуальная стандартизация с AI-контекстом продукта"""
     if pd.isna(value):
         return value
     
@@ -591,34 +803,36 @@ def standardize_value_intelligent_optimized(value, target_format=None, column_na
     extractor = standardize_value_intelligent_optimized._extractor
     extractions = extractor.extract_all_methods(value)
     
-    # Если AI не нашел единицы в значении, используем групповое определение единиц
+    # Если AI не нашел единицы в значении, используем контекстный анализ
     if not extractions and column_name:
-        unit_from_category = None
+        unit_from_context = None
         
         # Сначала проверяем групповой кэш единиц для категории
         if category_units and category in category_units:
-            unit_from_category = category_units[category]
+            unit_from_context = category_units[category]
         elif category_units and 'default' in category_units:
-            unit_from_category = category_units['default']
+            unit_from_context = category_units['default']
         else:
-            # Fallback к контекстному анализу
-            unit_from_category = extract_unit_from_context_optimized(column_name, product_name, category)
+            # AI-контекстный анализ с полной информацией о продукте
+            unit_from_context = analyze_product_context_for_units(column_name, product_name, category, description)
+            if not unit_from_context:
+                unit_from_context = extract_unit_from_context_optimized(column_name, product_name, category, description)
         
-        if unit_from_category:
+        if unit_from_context:
             # Пытаемся извлечь число из значения
             value_str = str(value).strip()
             number_match = re.search(r'(\d+\.?\d*)', value_str)
             if number_match:
                 number = float(number_match.group(1))
                 
-                # Создаем "искусственное" извлечение на основе группового анализа
+                # Создаем "искусственное" извлечение на основе AI-контекстного анализа
                 artificial_extraction = {
                     'value': number,
-                    'unit': unit_from_category,
-                    'unit_symbol': unit_from_category,
-                    'dimension': 'from_category_group',
-                    'confidence': 0.98,  # Очень высокая уверенность для группового анализа
-                    'method': 'category_group_analysis'
+                    'unit': unit_from_context,
+                    'unit_symbol': unit_from_context,
+                    'dimension': 'ai_product_context',
+                    'confidence': 0.95,  # Высокая уверенность для AI-контекстного анализа
+                    'method': 'ai_product_context_analysis'
                 }
                 extractions = [artificial_extraction]
     
@@ -647,8 +861,8 @@ def standardize_value_intelligent_optimized(value, target_format=None, column_na
     else:
         return f"{number} {unit}"
 
-def standardize_value_simple_optimized(value, target_format='number_unit', column_name=None, product_name=None, category=None, category_units=None):
-    """Оптимизированная простая стандартизация значения с групповым определением единиц"""
+def standardize_value_simple_optimized(value, target_format='number_unit', column_name=None, product_name=None, category=None, category_units=None, description=None):
+    """Оптимизированная простая стандартизация с AI-контекстом продукта"""
     if pd.isna(value):
         return value
     
@@ -662,21 +876,23 @@ def standardize_value_simple_optimized(value, target_format='number_unit', colum
         number = match.group(1)
         unit = match.group(2).strip()
         
-        # Если единица пустая, используем групповое определение единиц
+        # Если единица пустая, используем AI-контекстный анализ
         if not unit and column_name:
-            unit_from_category = None
+            unit_from_context = None
             
             # Сначала проверяем групповой кэш единиц для категории
             if category_units and category in category_units:
-                unit_from_category = category_units[category]
+                unit_from_context = category_units[category]
             elif category_units and 'default' in category_units:
-                unit_from_category = category_units['default']
+                unit_from_context = category_units['default']
             else:
-                # Fallback к контекстному анализу
-                unit_from_category = extract_unit_from_context_optimized(column_name, product_name, category)
+                # AI-контекстный анализ с полной информацией о продукте
+                unit_from_context = analyze_product_context_for_units(column_name, product_name, category, description)
+                if not unit_from_context:
+                    unit_from_context = extract_unit_from_context_optimized(column_name, product_name, category, description)
             
-            if unit_from_category:
-                unit = unit_from_category
+            if unit_from_context:
+                unit = unit_from_context
         
         # Если единица все еще пустая, возвращаем как есть
         if not unit:
@@ -694,10 +910,10 @@ def standardize_value_simple_optimized(value, target_format='number_unit', colum
 
 # Оптимизированная функция пакетной стандартизации
 def batch_standardize_column_optimized(df, column_name, standardization_format, use_ai=False, category_column='group_name'):
-    """Пакетная стандартизация колонки с групповым анализом единиц"""
+    """Пакетная стандартизация колонки с улучшенным AI-контекстным анализом"""
     
-    # Сначала определяем единицы для каждой категории
-    category_units = analyze_units_by_category(df, column_name, category_column)
+    # Сначала определяем единицы для каждой категории с AI-анализом продуктов
+    category_units = analyze_units_by_category(df, column_name, category_column, sample_size=3)
     
     results = []
     
@@ -707,30 +923,35 @@ def batch_standardize_column_optimized(df, column_name, standardization_format, 
             if pd.isna(category):
                 category = 'default'
             
-            # Получаем единицу для этой категории
-            category_unit = category_units.get(str(category))
-            
             # Стандартизируем все значения в этой категории
-            for idx, value in group_df[column_name].items():
+            for idx, row in group_df.iterrows():
+                value = row[column_name]
+                product_name = row.get('product_name', row.get('name', ''))
+                description = row.get('description', '')
+                
                 if use_ai:
                     standardized = standardize_value_intelligent_optimized(
-                        value, standardization_format, column_name, None, str(category), category_units
+                        value, standardization_format, column_name, product_name, str(category), category_units, description
                     )
                 else:
                     standardized = standardize_value_simple_optimized(
-                        value, standardization_format, column_name, None, str(category), category_units
+                        value, standardization_format, column_name, product_name, str(category), category_units, description
                     )
                 results.append((idx, standardized))
     else:
         # Если нет колонки категории, обрабатываем как обычно
-        for idx, value in df[column_name].items():
+        for idx, row in df.iterrows():
+            value = row[column_name]
+            product_name = row.get('product_name', row.get('name', ''))
+            description = row.get('description', '')
+            
             if use_ai:
                 standardized = standardize_value_intelligent_optimized(
-                    value, standardization_format, column_name, None, None, category_units
+                    value, standardization_format, column_name, product_name, None, category_units, description
                 )
             else:
                 standardized = standardize_value_simple_optimized(
-                    value, standardization_format, column_name, None, None, category_units
+                    value, standardization_format, column_name, product_name, None, category_units, description
                 )
             results.append((idx, standardized))
     
@@ -851,6 +1072,7 @@ if not df_param.empty:
         
         if active_methods:
             st.info(f"Методы ИИ для следующих этапов: {', '.join(active_methods)}")
+            st.success("🧠 **НОВОЕ**: AI анализирует 2-3 товара из каждой категории для точного определения единиц измерения")
             if use_transformers and TRANSFORMERS_AVAILABLE:
                 st.info("ℹ️ Transformer модель будет загружена при первом использовании (может занять некоторое время)")
         
@@ -899,191 +1121,56 @@ if not df_param.empty:
             
             if selected_col:
                 st.markdown(f"**Примеры значений из колонки '{selected_col}':**")
-                sample_values = df_param[selected_col].dropna().head(10).tolist()
-                for i, value in enumerate(sample_values, 1):
-                    # Подсвечиваем цифры в значениях
-                    value_str = str(value)
-                    highlighted = re.sub(r'(\d+\.?\d*)', r'**\1**', value_str)
-                    st.write(f"{i}. {highlighted}")
-
-    # --- Этап 2: Стандартизация значений ---
-    with st.expander("#### 2. ⚙️ Стандартизация значений", expanded=False):
-        
-        if 'numeric_analysis_simple' in st.session_state and st.session_state['numeric_analysis_simple']:
-            
-            # Выбор режима стандартизации
-            col1, col2 = st.columns([1, 2])
-            with col1:
-                use_ai_standardization = st.checkbox(
-                    "🧠 Умная стандартизация (AI)", 
-                    value=False,
-                    help="Использовать AI для понимания единиц измерения и автоматической стандартизации"
-                )
-            with col2:
-                if use_ai_standardization:
-                    st.info("🤖 AI-режим: автоматическое определение и стандартизация единиц")
-                else:
-                    st.info("⚡ Быстрый режим: простое форматирование regex")
-            
-            # Информация об оптимизации
-            st.info("🚀 **Групповая оптимизация**: Система анализирует только несколько образцов из каждой категории товаров, а затем применяет найденные единицы ко всем товарам в этой категории. Например, если в категории 'laptop' параметр 'Screen Inches' имеет единицу 'inches' у 2-3 товаров, то все остальные ноутбуки автоматически получат эту же единицу.")
-            
-            # Выбор колонок для стандартизации
-            standardizable_columns = list(st.session_state['numeric_analysis_simple'].keys())
-            selected_columns = st.multiselect(
-                "Выберите колонки для стандартизации:",
-                options=standardizable_columns,
-                default=standardizable_columns[:3] if len(standardizable_columns) > 3 else standardizable_columns
-            )
-            
-            if selected_columns:
-                # Настройки стандартизации
-                format_options = {
-                    'number_unit': 'Число Единица (100 kg)',
-                    'unit_number': 'Единица Число (kg 100)'
-                }
                 
-                if use_ai_standardization:
-                    format_options['auto'] = 'Автоматический выбор формата (AI)'
-                
-                standardization_format = st.selectbox(
-                    "Формат результата:",
-                    options=list(format_options.keys()),
-                    format_func=lambda x: format_options[x],
-                    index=0
-                )
-                
-                # Предпросмотр стандартизации
-                if st.button("👁️ Предпросмотр стандартизации", key="preview_standardization"):
-                    preview_col = selected_columns[0]
-                    st.markdown(f"**Предпросмотр для колонки '{preview_col}':**")
-                    
-                    sample_values = df_param[preview_col].dropna().head(5)
-                    for i, (idx, original) in enumerate(sample_values.items()):
-                        # Получаем дополнительную информацию о продукте
-                        product_name = None
-                        category = None
-                        
-                        # Пытаемся найти колонки с названием продукта и категорией
-                        if 'Name' in df_param.columns:
-                            product_name = df_param.loc[idx, 'Name']
-                        elif 'Product Name' in df_param.columns:
-                            product_name = df_param.loc[idx, 'Product Name']
-                        elif 'product_name' in df_param.columns:
-                            product_name = df_param.loc[idx, 'product_name']
-                        
-                        if 'Category' in df_param.columns:
-                            category = df_param.loc[idx, 'Category']
-                        elif 'category' in df_param.columns:
-                            category = df_param.loc[idx, 'category']
-                        elif 'group_name' in df_param.columns:
-                            category = df_param.loc[idx, 'group_name']
-                        
-                        if use_ai_standardization:
-                            standardized = standardize_value_intelligent_optimized(original, standardization_format, preview_col, product_name, category)
-                        else:
-                            standardized = standardize_value_simple_optimized(original, standardization_format, preview_col, product_name, category)
-                        
-                        # Показываем дополнительную информацию для контекста
-                        context_info = []
-                        if product_name:
-                            context_info.append(f"Продукт: {str(product_name)[:30]}...")
-                        if category:
-                            context_info.append(f"Категория: {category}")
-                        
-                        context_str = " | ".join(context_info) if context_info else ""
-                        
-                        st.write(f"**До:** {original} → **После:** {standardized}")
-                        if context_str:
-                            st.caption(f"📝 Контекст: {context_str}")
-                
-                # Применение стандартизации
-                standardization_button_text = "✅ Применить AI-стандартизацию" if use_ai_standardization else "✅ Применить простую стандартизацию"
-                
-                if st.button(standardization_button_text, key="apply_standardization"):
-                    standardized_df = df_param.copy()
-                    
-                    if use_ai_standardization:
-                        with st.spinner("🧠 AI-стандартизация значений..."):
-                            progress_bar = st.progress(0)
-                            
-                            for i, column in enumerate(selected_columns):
-                                progress_bar.progress((i + 1) / len(selected_columns))
-                                
-                                # Используем оптимизированную пакетную стандартизацию
-                                new_column_name = f"{column}_ai_standardized"
-                                standardized_df[new_column_name] = batch_standardize_column_optimized(
-                                    standardized_df, 
-                                    column, 
-                                    standardization_format, 
-                                    use_ai=True
-                                )
-                            
-                            progress_bar.empty()
-                            suffix = "ai_standardized"
-                    else:
-                        with st.spinner("⚡ Быстрая стандартизация значений..."):
-                            for column in selected_columns:
-                                # Используем оптимизированную пакетную стандартизацию
-                                new_column_name = f"{column}_standardized"
-                                standardized_df[new_column_name] = batch_standardize_column_optimized(
-                                    standardized_df, 
-                                    column, 
-                                    standardization_format, 
-                                    use_ai=False
-                                )
-                            suffix = "standardized"
-                    
-                    # Сохраняем результат
-                    st.session_state['df_standardization'] = standardized_df
-                    method_name = "AI-стандартизация" if use_ai_standardization else "Простая стандартизация"
-                    st.success(f"✅ {method_name} применена к {len(selected_columns)} колонкам!")
-                    
-                    # Показываем статистику оптимизации
-                    total_rows = len(standardized_df)
-                    category_column = None
-                    for col in ['group_name', 'Category', 'category']:
-                        if col in standardized_df.columns:
-                            category_column = col
+                # Проверяем где найти колонку - в исходных данных или в обработанных
+                if selected_col in df_param.columns:
+                    # Колонка еще не была стандартизирована
+                    sample_values = df_param[selected_col].dropna().head(10).tolist()
+                elif 'df_standardization' in st.session_state:
+                    # Ищем стандартизированную версию колонки
+                    standardized_col = None
+                    for col in st.session_state['df_standardization'].columns:
+                        if selected_col in col and "(" in col and ")" in col:
+                            standardized_col = col
                             break
                     
-                    if category_column:
-                        unique_categories = standardized_df[category_column].nunique()
-                        st.info(f"📊 **Статистика оптимизации**: Обработано {total_rows} товаров в {unique_categories} категориях. Вместо {total_rows * len(selected_columns)} индивидуальных анализов выполнено всего {unique_categories * len(selected_columns) * 5} анализов образцов (экономия ~{((total_rows * len(selected_columns) - unique_categories * len(selected_columns) * 5) / (total_rows * len(selected_columns)) * 100):.1f}%)")
-                    
-                    # Показываем результаты
-                    comparison_cols = []
-                    for col in selected_columns:
-                        new_col_name = f"{col}_{suffix}"
-                        if new_col_name in standardized_df.columns:
-                            comparison_cols.extend([col, new_col_name])
-                    
-                    if comparison_cols:
-                        st.markdown("**Сравнение результатов:**")
-                        st.dataframe(standardized_df[comparison_cols].head(10))
-        else:
-            st.info("Сначала найдите числовые колонки в разделе выше.")
+                    if standardized_col:
+                        sample_values = st.session_state['df_standardization'][standardized_col].dropna().head(10).tolist()
+                        st.info(f"Показаны значения из стандартизированной колонки: {standardized_col}")
+                    else:
+                        # Пытаемся найти в обработанных данных
+                        if selected_col in st.session_state['df_standardization'].columns:
+                            sample_values = st.session_state['df_standardization'][selected_col].dropna().head(10).tolist()
+                        else:
+                            st.warning("Колонка не найдена ни в исходных, ни в обработанных данных")
+                            sample_values = []
+                else:
+                    st.warning("Данные не найдены")
+                    sample_values = []
+                
+                if sample_values:
+                    for i, value in enumerate(sample_values, 1):
+                        # Подсвечиваем цифры в значениях
+                        value_str = str(value)
+                        highlighted = re.sub(r'(\d+\.?\d*)', r'**\1**', value_str)
+                        st.write(f"{i}. {highlighted}")
 
-    # --- Этап 3: Интеллектуальное определение единиц измерения ---
-    with st.expander("#### 3. 🧠 Интеллектуальное определение единиц измерения", expanded=False):
+    # --- Этап 2: Интеллектуальное определение единиц измерения ---
+    with st.expander("#### 2. 🧠 Интеллектуальное определение единиц измерения", expanded=False):
         st.markdown("**AI-анализ типов измерений и единиц для найденных числовых колонок**")
-        
+
         if 'numeric_analysis_simple' in st.session_state and st.session_state['numeric_analysis_simple']:
-            
             if st.button("🔍 Определить единицы измерения (AI)", key="detect_units_ai"):
                 measurement_analysis = {}
-                
                 progress_bar = st.progress(0)
                 columns_to_analyze = list(st.session_state['numeric_analysis_simple'].keys())
-                
+
                 with st.spinner("Выполняем AI-анализ единиц измерения..."):
                     for i, column in enumerate(columns_to_analyze):
                         progress_bar.progress((i + 1) / len(columns_to_analyze))
-                        
                         # Берем образец значений для анализа
                         sample_values = df_param[column].dropna().head(max_samples).tolist()
-                        analysis_result = detect_measurement_type_intelligent(column, sample_values)
-                        
+                        analysis_result = detect_measurement_type_intelligent(column, sample_values, use_quantulum=True, use_transformers=True, use_pint=True)
                         measurement_analysis[column] = {
                             'type': analysis_result['primary_dimension'],
                             'confidence': analysis_result['confidence'],
@@ -1091,7 +1178,6 @@ if not df_param.empty:
                             'analysis_summary': analysis_result['analysis_summary'],
                             'sample_values': sample_values[:10]
                         }
-                
                 progress_bar.empty()
                 st.session_state['measurement_analysis_ai'] = measurement_analysis
                 st.success("✅ Интеллектуальный анализ единиц измерения завершен!")
@@ -1107,12 +1193,21 @@ if not df_param.empty:
                         'Размерность': analysis['type'],
                         'Уверенность': f"{analysis['confidence']:.2f}",
                         'Найденные единицы': ', '.join(analysis['common_units'][:5]),
-                        'Примеры значений': ', '.join([str(v) for v in analysis['sample_values'][:3]])
+                        'Примеры значений': ', '.join([str(v) for v in analysis['sample_values'][:3]]),
+                        'Метод анализа': analysis['analysis_summary'].get('method', 'unknown'),
+                        'Контекстная единица': analysis['analysis_summary'].get('context_unit', 'Нет')
                     }
                     measurement_data.append(row)
                 
                 measurement_df = pd.DataFrame(measurement_data)
                 st.dataframe(measurement_df, use_container_width=True)
+                
+                # Показываем статистику успешности
+                successful_analyses = sum(1 for analysis in st.session_state['measurement_analysis_ai'].values() if analysis['confidence'] > 0)
+                total_analyses = len(st.session_state['measurement_analysis_ai'])
+                success_rate = (successful_analyses / total_analyses * 100) if total_analyses > 0 else 0
+                
+                st.info(f"📈 **Статистика анализа**: {successful_analyses} из {total_analyses} колонок успешно проанализированы ({success_rate:.1f}% успешности)")
                 
                 # Детальная информация
                 selected_column = st.selectbox(
@@ -1123,63 +1218,283 @@ if not df_param.empty:
                 if selected_column:
                     analysis = st.session_state['measurement_analysis_ai'][selected_column]
                     
-                    col1, col2 = st.columns(2)
+                    col1, col2, col3 = st.columns(3)
                     with col1:
                         st.markdown("**Найденные размерности:**")
                         dimensions = analysis['analysis_summary']['dimensions_found']
                         for dim, count in dimensions.items():
-                            st.write(f"- {dim}: {count}")
+                            st.write(f"• {dim}: {count}")
                     
                     with col2:
                         st.markdown("**Найденные единицы:**")
                         units = analysis['analysis_summary']['units_found']
                         for unit, count in units.items():
-                            st.write(f"- {unit}: {count}")
+                            st.write(f"• {unit}: {count}")
+                    
+                    with col3:
+                        st.markdown("**Образцы значений:**")
+                        for value in analysis['sample_values'][:5]:
+                            st.write(f"• {value}")
         else:
             st.info("Сначала найдите числовые колонки в разделе выше.")
 
-    # --- Этап 4: Пакетная конвертация единиц с Pint ---
-    with st.expander("#### 4. 🔄 Пакетная конвертация единиц (Pint)", expanded=False):
-        if PINT_AVAILABLE and use_pint:
-            st.markdown("**Конвертация всех единиц в стандартный формат**")
-            
-            if 'measurement_analysis_ai' in st.session_state:
-                # Показываем возможные конвертации
-                conversion_options = {}
-                
-                for column, analysis in st.session_state['measurement_analysis_ai'].items():
-                    dimension = analysis['type']
-                    if dimension and dimension != 'unknown':
-                        conversion_options[column] = {
-                            'dimension': dimension,
-                            'units': analysis['common_units']
-                        }
-                
-                if conversion_options:
-                    st.markdown("**Доступные конвертации:**")
-                    
-                    for column, info in conversion_options.items():
-                        st.write(f"**{column}** (размерность: {info['dimension']})")
-                        st.write(f"Найденные единицы: {', '.join(info['units'][:5])}")
-                        
-                        # Выбор целевой единицы
-                        target_unit = st.text_input(
-                            f"Целевая единица для {column}:",
-                            value=info['units'][0] if info['units'] else '',
-                            key=f"target_unit_{column}"
-                        )
-                        
-                        conversion_options[column]['target_unit'] = target_unit
-                    
-                    if st.button("🔄 Выполнить пакетную конвертацию", key="batch_conversion"):
-                        # Здесь будет логика пакетной конвертации с Pint
-                        st.info("Функция пакетной конвертации будет реализована в следующем обновлении")
-                else:
-                    st.info("Нет подходящих данных для конвертации единиц")
-            else:
-                st.info("Сначала выполните анализ единиц измерения")
+    # --- Этап 3: Стандартизация значений ---
+    with st.expander("#### 3. ⚙️ Стандартизация значений", expanded=False):
+        st.markdown("**Стандартизация всех найденных числовых колонок (исключите ненужные)**")
+        
+        # Выбор типа стандартизации
+        use_ai_standardization = st.checkbox(
+            "🧠 Умная стандартизация (AI)", 
+            value=False,
+            help="AI автоматически определяет и добавляет единицы измерения к числам"
+        )
+        
+        if use_ai_standardization:
+            st.info("ℹ️ AI-режим: автоматическое определение и стандартизация единиц + анализ контекста продуктов")
         else:
-            st.warning("Библиотека Pint не доступна или не выбрана в настройках")
+            st.info("⚡ Быстрый режим: простое regex форматирование + AI-контекст продуктов")
+        
+        # Выбор колонок для исключения из стандартизации
+        if 'numeric_analysis_simple' in st.session_state and st.session_state['numeric_analysis_simple']:
+            available_columns = list(st.session_state['numeric_analysis_simple'].keys())
+            
+            # Определяем колонки с низкой уверенностью для автоматического исключения
+            columns_with_low_confidence = []
+            if 'measurement_analysis_ai' in st.session_state:
+                for column, analysis in st.session_state['measurement_analysis_ai'].items():
+                    if analysis['confidence'] < 0.3:  # Низкая уверенность
+                        columns_with_low_confidence.append(column)
+            
+            st.markdown("**Выберите колонки для ИСКЛЮЧЕНИЯ из стандартизации:**")
+            excluded_columns = st.multiselect(
+                "Колонки для исключения:",
+                options=available_columns,
+                default=columns_with_low_confidence,
+                help="По умолчанию исключены колонки с низкой уверенностью определения единиц (< 30%)"
+            )
+            
+            # Определяем колонки для стандартизации (все кроме исключенных)
+            selected_columns = [col for col in available_columns if col not in excluded_columns]
+            
+            if selected_columns:
+                st.success(f"✅ Для стандартизации выбрано {len(selected_columns)} колонок из {len(available_columns)}")
+                if excluded_columns:
+                    st.info(f"❌ Исключено {len(excluded_columns)} колонок: {', '.join(excluded_columns[:3])}{'...' if len(excluded_columns) > 3 else ''}")
+                
+                # Показываем список колонок для стандартизации
+                with st.expander("📋 Колонки для стандартизации", expanded=False):
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.markdown("**Будут стандартизированы:**")
+                        for col in selected_columns:
+                            confidence = ""
+                            if 'measurement_analysis_ai' in st.session_state and col in st.session_state['measurement_analysis_ai']:
+                                conf_val = st.session_state['measurement_analysis_ai'][col]['confidence']
+                                confidence = f" (уверенность: {conf_val:.2f})"
+                            st.write(f"✅ {col}{confidence}")
+                    
+                    with col2:
+                        if excluded_columns:
+                            st.markdown("**Исключены из стандартизации:**")
+                            for col in excluded_columns:
+                                confidence = ""
+                                if 'measurement_analysis_ai' in st.session_state and col in st.session_state['measurement_analysis_ai']:
+                                    conf_val = st.session_state['measurement_analysis_ai'][col]['confidence']
+                                    confidence = f" (уверенность: {conf_val:.2f})"
+                                st.write(f"❌ {col}{confidence}")
+            else:
+                st.warning("⚠️ Все колонки исключены из стандартизации")
+            
+            if selected_columns:
+                # Устанавливаем формат по умолчанию
+                standardization_format = 'number_unit'  # Число Единица (100 kg)
+                
+                # Предпросмотр стандартизации
+                if st.button("👁️ Предпросмотр стандартизации", key="preview_standardization"):
+                    st.markdown("**🔍 Предпросмотр стандартизации для всех колонок:**")
+                    
+                    # Создаем компактную таблицу предпросмотра
+                    preview_data = []
+                    
+                    # Сначала определяем единицы по категориям один раз
+                    category_units_cache = {}
+                    
+                    for column in selected_columns:
+                        # Получаем единицы для этой колонки (кэшируем для эффективности)
+                        if column not in category_units_cache:
+                            category_units_cache[column] = analyze_units_by_category(df_param, column, 'group_name', 3)
+                        category_units = category_units_cache[column]
+                        
+                        # Берем первое непустое значение из колонки
+                        sample_value = None
+                        for value in df_param[column].dropna().head(10):
+                            if pd.notna(value) and str(value).strip():
+                                sample_value = value
+                                break
+                        
+                        if sample_value is not None:
+                            # Получаем информацию о продукте для контекста
+                            value_row = df_param[df_param[column] == sample_value]
+                            if not value_row.empty:
+                                product_name = value_row.get('product_name', pd.Series([None])).iloc[0]
+                                category = value_row.get('group_name', pd.Series([None])).iloc[0]
+                                description = value_row.get('description', pd.Series([None])).iloc[0]
+                            else:
+                                product_name = None
+                                category = None
+                                description = None
+                            
+                            # Выполняем стандартизацию
+                            if use_ai_standardization:
+                                standardized = standardize_value_intelligent_optimized(
+                                    sample_value, standardization_format, column, product_name, category, category_units, description
+                                )
+                            else:
+                                standardized = standardize_value_simple_optimized(
+                                    sample_value, standardization_format, column, product_name, category, category_units, description
+                                )
+                            
+                            # Добавляем в таблицу предпросмотра
+                            preview_data.append({
+                                'Колонка': column,
+                                'До': str(sample_value),
+                                'После': str(standardized),
+                                'Изменение': "✅ Добавлена единица" if str(sample_value) != str(standardized) else "ℹ️ Без изменений"
+                            })
+                        else:
+                            # Если не найдено значений
+                            preview_data.append({
+                                'Колонка': column,
+                                'До': "—",
+                                'После': "—", 
+                                'Изменение': "❌ Нет данных"
+                            })
+                    
+                    # Отображаем компактную таблицу
+                    if preview_data:
+                        preview_df = pd.DataFrame(preview_data)
+                        st.dataframe(preview_df, use_container_width=True, hide_index=True)
+                        
+                        # Показываем статистику
+                        changed_count = len([row for row in preview_data if "✅" in row['Изменение']])
+                        unchanged_count = len([row for row in preview_data if "ℹ️" in row['Изменение']])
+                        error_count = len([row for row in preview_data if "❌" in row['Изменение']])
+                        
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.metric("✅ Будут изменены", changed_count)
+                        with col2:
+                            st.metric("ℹ️ Без изменений", unchanged_count)
+                        with col3:
+                            st.metric("❌ Ошибки", error_count)
+                    else:
+                        st.warning("Нет данных для предпросмотра")
+                
+                # Применение стандартизации
+                button_text = "🧠 Применить AI-стандартизацию" if use_ai_standardization else "⚡ Применить простую стандартизацию"
+                
+                if st.button(button_text, key="apply_standardization"):
+                    with st.spinner("Выполняем стандартизацию..."):
+                        progress_bar = st.progress(0)
+                        
+                        for i, column in enumerate(selected_columns):
+                            progress_bar.progress((i + 1) / len(selected_columns))
+                            
+                            # Выполняем стандартизацию
+                            standardized_values = batch_standardize_column_optimized(
+                                df_param, column, standardization_format, use_ai_standardization, 'group_name'
+                            )
+                            
+                            # Определяем единицу измерения для заголовка
+                            unit_for_header = None
+                            if 'measurement_analysis_ai' in st.session_state and column in st.session_state['measurement_analysis_ai']:
+                                common_units = st.session_state['measurement_analysis_ai'][column]['common_units']
+                                if common_units:
+                                    unit_for_header = common_units[0]  # Берем первую (наиболее частую) единицу
+                            
+                            # Если нет единицы из AI-анализа, пытаемся определить из контекста
+                            if not unit_for_header:
+                                category_units = analyze_units_by_category(df_param, column, 'group_name', 3)
+                                if category_units:
+                                    unit_for_header = list(category_units.values())[0] if category_units else None
+                            
+                            # Создаем новое имя колонки с единицей в скобках (если её нет)
+                            if unit_for_header and f"({unit_for_header})" not in column:
+                                new_column_name = f"{column} ({unit_for_header})"
+                            else:
+                                new_column_name = column
+                            
+                            # ЗАМЕНЯЕМ старую колонку на стандартизированную (не добавляем новую)
+                            st.session_state['df_standardization'][new_column_name] = standardized_values
+                            
+                            # Удаляем старую колонку если имя изменилось
+                            if new_column_name != column and column in st.session_state['df_standardization'].columns:
+                                st.session_state['df_standardization'].drop(columns=[column], inplace=True)
+                        
+                        progress_bar.empty()
+                        
+                        # Показываем статистику
+                        new_cols_count = len(selected_columns)
+                        method_name = "AI-стандартизации" if use_ai_standardization else "простой стандартизации"
+                        
+                        st.success(f"✅ {method_name} завершена!")
+                        st.info(f"📊 Заменено {new_cols_count} колонок стандартизированными версиями с единицами измерения")
+                        
+                        # Показываем какие колонки были заменены
+                        replaced_columns = []
+                        for column in selected_columns:
+                            # Ищем новую версию с единицами
+                            standardized_version = None
+                            for col in st.session_state['df_standardization'].columns:
+                                if column in col and "(" in col and ")" in col:
+                                    standardized_version = col
+                                    break
+                            if standardized_version:
+                                replaced_columns.append(f"{column} → {standardized_version}")
+                        
+                        if replaced_columns:
+                            with st.expander("📋 Замененные колонки", expanded=True):
+                                st.markdown("**Колонки заменены на стандартизированные версии:**")
+                                for replacement in replaced_columns:
+                                    st.write(f"• {replacement}")
+                        
+                        # Показываем примеры результатов
+                        st.markdown("**Примеры результатов:**")
+                        
+                        # Находим стандартизированные колонки с единицами
+                        standardized_columns_with_units = [
+                            col for col in st.session_state['df_standardization'].columns 
+                            if any(orig_col in col for orig_col in selected_columns) and "(" in col and ")" in col
+                        ]
+                        
+                        for column in standardized_columns_with_units[:2]:  # Показываем для первых 2 колонок
+                            # Находим оригинальное имя колонки
+                            original_col = None
+                            for orig in selected_columns:
+                                if orig in column:
+                                    original_col = orig
+                                    break
+                            
+                            if original_col and original_col in df_param.columns:
+                                sample_comparison = []
+                                original_values = df_param[original_col].dropna().head(3).tolist()
+                                standardized_values = st.session_state['df_standardization'][column].dropna().head(3).tolist()
+                                
+                                for orig, stand in zip(original_values, standardized_values):
+                                    sample_comparison.append({
+                                        'Оригинал': orig,
+                                        'Стандартизировано': stand,
+                                        'Колонка': column
+                                    })
+                                
+                                if sample_comparison:
+                                    comparison_df = pd.DataFrame(sample_comparison)
+                                    st.dataframe(comparison_df, use_container_width=True)
+            else:
+                st.warning("Выберите колонки для стандартизации")
+        else:
+            st.info("Сначала найдите числовые колонки в этапе 1.")
+
 
     # --- Сохранение результатов ---
     with st.expander("#### 5. 💾 Сохранение результатов", expanded=False):
@@ -1187,23 +1502,25 @@ if not df_param.empty:
         # Показываем текущее состояние
         if 'df_standardization' in st.session_state:
             current_df = st.session_state['df_standardization']
-            st.info(f"📊 Текущее состояние: {len(current_df)} строк, {len(current_df.columns)} колонок")
             
-            # Подсчитываем стандартизированные колонки
-            simple_standardized_count = len([col for col in current_df.columns if col.endswith('_standardized') and not col.endswith('_ai_standardized')])
-            ai_standardized_count = len([col for col in current_df.columns if '_ai_standardized' in col])
+            # Подсчитываем стандартизированные колонки (с единицами в скобках)
+            standardized_columns = [col for col in current_df.columns if "(" in col and ")" in col]
+            total_columns = len(current_df.columns)
             
-            if simple_standardized_count > 0:
-                st.success(f"✅ Простых стандартизированных колонок: {simple_standardized_count}")
-            if ai_standardized_count > 0:
-                st.success(f"🧠 AI-стандартизированных колонок: {ai_standardized_count}")
+            st.info(f"📊 Готовая таблица: {len(current_df)} строк, {total_columns} колонок")
+            
+            if standardized_columns:
+                st.success(f"✅ Стандартизированных колонок: {len(standardized_columns)} из {total_columns}")
+                st.info(f"📝 Примеры: {', '.join(standardized_columns[:3])}{'...' if len(standardized_columns) > 3 else ''}")
+        else:
+            st.warning("Сначала выполните стандартизацию")
         
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            if st.button("💾 Сохранить в grouped_categories.csv", key="save_main_ai"):
+            if st.button("💾 Сохранить в standard.csv", key="save_main_ai"):
                 try:
-                    output_path = os.path.join(os.path.dirname(__file__), '..', 'grouped_categories.csv')
+                    output_path = os.path.join(os.path.dirname(__file__), '..', 'standard.csv')
                     current_df = st.session_state.get('df_standardization', df_param)
                     current_df.to_csv(output_path, index=False, encoding='utf-8-sig')
                     st.success(f"✅ Данные сохранены в {output_path}")
@@ -1218,7 +1535,7 @@ if not df_param.empty:
                 st.download_button(
                     label="⬇️ Скачать файл",
                     data=csv_data,
-                    file_name="ai_standardized_parameters.csv",
+                    file_name="standard.csv",
                     mime="text/csv",
                     key="download_ai_standardized"
                 )
@@ -1226,7 +1543,7 @@ if not df_param.empty:
         with col3:
             if st.button("🔄 Обновить исходные данные", key="reload_data_ai"):
                 # Очищаем кэш и session state
-                for key in ['df_standardization', 'numeric_analysis_simple', 'numeric_analysis_ai', 'measurement_analysis_ai']:
+                for key in ['df_standardization', 'numeric_analysis_simple', 'measurement_analysis_ai', 'standardization_results']:
                     if key in st.session_state:
                         del st.session_state[key]
                 
@@ -1242,67 +1559,6 @@ if not df_param.empty:
                 st.success("Данные и кэш обновлены! Страница будет перезагружена.")
                 st.rerun()
 
-    # --- Статистика ---
-    with st.expander("#### 6. 📊 Статистика и сравнение методов", expanded=False):
-        current_df = st.session_state.get('df_standardization', df_param)
-        total_cols = len(current_df.columns)
-        
-        # Подсчитываем стандартизированные колонки (простые + AI)
-        simple_standardized_cols = len([col for col in current_df.columns if col.endswith('_standardized') and not col.endswith('_ai_standardized')])
-        ai_standardized_cols = len([col for col in current_df.columns if '_ai_standardized' in col])
-        total_standardized = simple_standardized_cols + ai_standardized_cols
-        
-        total_rows = len(current_df)
-        
-        stat_col1, stat_col2, stat_col3, stat_col4 = st.columns(4)
-        with stat_col1:
-            st.metric("Всего колонок", total_cols)
-        with stat_col2:
-            st.metric("Стандартизированных", total_standardized)
-        with stat_col3:
-            st.metric("Всего строк", total_rows)
-        with stat_col4:
-            active_methods_count = sum([use_quantulum, use_transformers, use_pint])
-            st.metric("Активных методов ИИ", active_methods_count)
-        
-        # Детализация по типам стандартизации
-        if total_standardized > 0:
-            detail_col1, detail_col2 = st.columns(2)
-            with detail_col1:
-                st.metric("🔧 Простая стандартизация", simple_standardized_cols)
-            with detail_col2:
-                st.metric("🧠 AI-стандартизация", ai_standardized_cols)
-        
-        # Сравнение производительности методов
-        simple_found = len(st.session_state.get('numeric_analysis_simple', {}))
-        
-        st.markdown("**Результаты анализа:**")
-        st.write(f"- **Простой анализ**: {simple_found} числовых колонок найдено")
-        
-        if 'numeric_analysis_ai' in st.session_state:
-            st.markdown("**Сравнение производительности ИИ-методов:**")
-            
-            method_stats = {
-                'Quantulum3': 0,
-                'Transformers': 0,
-                'Pint валидация': 0
-            }
-            
-            for column, stats in st.session_state['numeric_analysis_ai'].items():
-                extraction_stats = stats.get('extraction_stats', {})
-                method_stats['Quantulum3'] += extraction_stats.get('quantulum_extractions', 0)
-                method_stats['Transformers'] += extraction_stats.get('transformer_extractions', 0)
-                method_stats['Pint валидация'] += extraction_stats.get('pint_validations', 0)
-            
-            for method, count in method_stats.items():
-                st.write(f"- **{method}**: {count} успешных извлечений")
-        
-        # Показываем текущее состояние данных
-        if st.checkbox("Показать все данные", key="show_all_data_ai"):
-            st.dataframe(current_df, use_container_width=True)
-        else:
-            st.markdown("**Первые 20 строк:**")
-            st.dataframe(current_df.head(20), use_container_width=True)
 
 else:
     st.warning("Нет данных для обработки. Сначала выполните основную обработку в главном приложении.")
