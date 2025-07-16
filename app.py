@@ -618,61 +618,102 @@ if df is not None:
 else:
     st.info("Please upload at least one CSV file.")
 
-# --- Кнопка перехода на страницу оптимизации параметров ---
+# --- Кнопки перехода на дополнительные страницы ---
 
 if df is not None:
     st.markdown("---")
-    if st.button("Сохранить данные и перейти к оптимизации параметров", key="go_to_param_page"):
-        # Строим финальную таблицу точно так же, как в секции "Download the final processed table"
-        fixed_group_names = st.session_state.get('fixed_group_names', set())
-        current_df = st.session_state.get('current_df', df)
-        
-        # Build fixed assignments from ALL rounds
-        fixed_assignments = {}
-        manual_fixed_assignments = st.session_state.get('manual_fixed_assignments', {})
-        for fixed_group in fixed_group_names:
-            # 1. From manual_fixed_assignments (if exists)
-            if fixed_group in manual_fixed_assignments:
-                for cat in manual_fixed_assignments[fixed_group]:
-                    fixed_assignments[cat] = fixed_group
-            # 2. From all current and previous DataFrames
-            for search_df in [st.session_state.get('current_df', df), df]:
-                if 'group_name' in search_df.columns:
-                    matches = search_df[search_df['group_name'] == fixed_group]
-                    for _, row in matches.iterrows():
-                        fixed_assignments[row[category_col]] = fixed_group
-        
-        # For all rows in the original df, assign group_name: fixed if exists, else from current_df, else itself
-        def get_final_group(row):
-            cat = row[category_col]
-            # Priority: fixed assignment > current_df group_name > ungrouped marker
-            if cat in fixed_assignments:
-                return fixed_assignments[cat]
-            # Try to get from current_df (may be unfixed group)
-            if 'group_name' in current_df.columns:
-                match = current_df[current_df[category_col] == cat]
-                if not match.empty:
-                    val = match.iloc[0]['group_name']
-                    # If group_name is not the same as the original category, treat as grouped
-                    if val != cat:
-                        return val
-            # If not grouped, mark as ungrouped (use -1, or 'ungrouped')
-            return 'ungrouped'
+    st.markdown("### Дальнейшая обработка данных")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("📏 Стандартизация и нормализация параметров", key="go_to_standardization_page"):
+            # Сохраняем текущие данные в grouped_categories.csv
+            fixed_group_names = st.session_state.get('fixed_group_names', set())
+            current_df = st.session_state.get('current_df', df)
             
-        final_table = df.copy()
-        final_table['group_name'] = final_table.apply(get_final_group, axis=1)
-        # Remove only service columns if present
-        for col in ["original_category", "group_name_x", "group_name_y"]:
-            if col in final_table.columns:
-                final_table = final_table.drop(columns=[col])
+            # Build fixed assignments from ALL rounds
+            fixed_assignments = {}
+            manual_fixed_assignments = st.session_state.get('manual_fixed_assignments', {})
+            for fixed_group in fixed_group_names:
+                # 1. From manual_fixed_assignments (if exists)
+                if fixed_group in manual_fixed_assignments:
+                    for cat in manual_fixed_assignments[fixed_group]:
+                        fixed_assignments[cat] = fixed_group
+                # 2. From all current and previous DataFrames
+                for search_df in [st.session_state.get('current_df', df), df]:
+                    if 'group_name' in search_df.columns:
+                        matching_rows = search_df[search_df['group_name'] == fixed_group]
+                        for cat in matching_rows['category']:
+                            fixed_assignments[cat] = fixed_group
             
-        # Сохраняем финальную обработанную таблицу в grouped_categories.csv (для перехода к оптимизации)
-        save_path = os.path.join(os.getcwd(), "grouped_categories.csv")
-        try:
-            final_table.to_csv(save_path, index=False, encoding="utf-8-sig")
-            st.info(f"Финальная обработанная таблица сохранена в: {save_path}")
-        except Exception as e:
-            st.warning(f"Не удалось сохранить grouped_categories.csv: {e}")
-        st.switch_page('pages/param_processing.py')
+            # Apply fixed assignments to the current DataFrame
+            final_table = current_df.copy()
+            if fixed_assignments:
+                for cat, group in fixed_assignments.items():
+                    final_table.loc[final_table['category'] == cat, 'group_name'] = group
+            
+            # Save to grouped_categories.csv
+            save_path = os.path.join(os.getcwd(), "grouped_categories.csv")
+            try:
+                final_table.to_csv(save_path, index=False, encoding="utf-8-sig")
+                st.info(f"Данные сохранены для стандартизации в: {save_path}")
+            except Exception as e:
+                st.warning(f"Не удалось сохранить grouped_categories.csv: {e}")
+            st.switch_page('pages/standardization.py')
+    
+    with col2:
+        if st.button("⚙️ Объединение похожих параметров", key="go_to_param_page"):
+            # Строим финальную таблицу точно так же, как в секции "Download the final processed table"
+            fixed_group_names = st.session_state.get('fixed_group_names', set())
+            current_df = st.session_state.get('current_df', df)
+            
+            # Build fixed assignments from ALL rounds
+            fixed_assignments = {}
+            manual_fixed_assignments = st.session_state.get('manual_fixed_assignments', {})
+            for fixed_group in fixed_group_names:
+                # 1. From manual_fixed_assignments (if exists)
+                if fixed_group in manual_fixed_assignments:
+                    for cat in manual_fixed_assignments[fixed_group]:
+                        fixed_assignments[cat] = fixed_group
+                # 2. From all current and previous DataFrames
+                for search_df in [st.session_state.get('current_df', df), df]:
+                    if 'group_name' in search_df.columns:
+                        matches = search_df[search_df['group_name'] == fixed_group]
+                        for _, row in matches.iterrows():
+                            fixed_assignments[row[category_col]] = fixed_group
+            
+            # For all rows in the original df, assign group_name: fixed if exists, else from current_df, else itself
+            def get_final_group(row):
+                cat = row[category_col]
+                # Priority: fixed assignment > current_df group_name > ungrouped marker
+                if cat in fixed_assignments:
+                    return fixed_assignments[cat]
+                # Try to get from current_df (may be unfixed group)
+                if 'group_name' in current_df.columns:
+                    match = current_df[current_df[category_col] == cat]
+                    if not match.empty:
+                        val = match.iloc[0]['group_name']
+                        # If group_name is not the same as the original category, treat as grouped
+                        if val != cat:
+                            return val
+                # If not grouped, mark as ungrouped (use -1, or 'ungrouped')
+                return 'ungrouped'
+                
+            final_table = df.copy()
+            final_table['group_name'] = final_table.apply(get_final_group, axis=1)
+            # Remove only service columns if present
+            for col in ["original_category", "group_name_x", "group_name_y"]:
+                if col in final_table.columns:
+                    final_table = final_table.drop(columns=[col])
+                
+            # Сохраняем финальную обработанную таблицу в grouped_categories.csv (для перехода к оптимизации)
+            save_path = os.path.join(os.getcwd(), "grouped_categories.csv")
+            try:
+                final_table.to_csv(save_path, index=False, encoding="utf-8-sig")
+                st.info(f"Финальная обработанная таблица сохранена в: {save_path}")
+            except Exception as e:
+                st.warning(f"Не удалось сохранить grouped_categories.csv: {e}")
+            st.switch_page('pages/param_processing.py')
 
 st.markdown("**Instructions:** Upload CSVs, select the category column, choose an embedding model, adjust clustering, and download the mapping.")
