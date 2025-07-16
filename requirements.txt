@@ -10,7 +10,10 @@ sentence-transformers
 # Быстрое текстовое сравнение
 rapidfuzz
 
-
+# Интеллектуальное распознавание единиц измерения
+quantulum3
+pint
+transformers
 
 # Для чтения Excel
 openpyxl

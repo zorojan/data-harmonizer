@@ -1,16 +1,16 @@
-Product Name,Category,SKU,Price (USD),Brand,Description,Weight (kg),Color,Power Usage (W),Water Tank (L),Unit Price,Manufacturer,RAM Size,Storage Capacity,Screen Inches,Build Material,Vendor,Dimensions,Width,Height,Length,Screen Resolution,WT,Watt,Power (kW),kWatt
-Nespresso Vertuo,Coffee Makers,EN_SKU_10_1,149.00,Nespresso,Single-serve coffee brewing machine,4.84,Red,1485,1.9,149.00,Nespresso,N/A,N/A,N/A,Plastic,Nespresso,140x240x310,140,240,310,1920x1080,1485,1485,1.485,1.5
-DeLonghi Magnifica,Espresso Machines,EN_SKU_10_0,600.00,DeLonghi,Automatic bean-to-cup coffee machine,3.42,Silver,1409,1.8,600.00,DeLonghi,N/A,N/A,N/A,Metal/Plastic,DeLonghi,238x430x350,238,430,350,1920x1200,1409,1409,1.409,1.4
-Philips 3200 Series,Home Coffee Appliances,EN_SKU_10_2,450.00,Philips,Fully automatic espresso machine,6.26,Black,815,1.6,450.00,Philips,N/A,N/A,N/A,Plastic,Philips,247x366x434,247,366,434,2560x1600,815,815,0.815,0.8
-Wayfair Dining Table,Dining Room Furniture,EN_SKU_4_2,299.99,Wayfair,Modern wooden dining table,45.0,Gray,N/A,N/A,299.99,Wayfair,N/A,N/A,N/A,Wood,Wayfair,1400x800x750,1400,800,750,N/A,N/A,N/A,N/A,N/A
-Ashley Sofa Set,Living Room Furniture,EN_SKU_4_1,749.50,Ashley Furniture,Comfortable sectional sofa,70.0,White,N/A,N/A,749.50,Ashley Furniture,N/A,N/A,N/A,Fabric,Ashley Furniture,2400x1600x900,2400,1600,900,N/A,N/A,N/A,N/A,N/A
-HP LaserJet M404,Laser Printers,EN_SKU_9_0,350.00,HP,Efficient monochrome laser printer,9.8,Beige,530,N/A,350.00,HP,N/A,N/A,N/A,Plastic,HP,400x300x200,400,300,200,1200x1200,530,530,0.53,0.5
-Canon Pixma G7020,Inkjet Printers,EN_SKU_9_1,279.00,Canon,Wireless all-in-one printer,8.0,Black,877,N/A,279.00,Canon,N/A,N/A,N/A,Plastic,Canon,410x330x195,410,330,195,4800x1200,877,877,0.877,0.9
-Epson EcoTank L3250,EcoTank Printers,EN_SKU_9_2,220.00,Epson,Cartridge-free printing,3.9,White,742,N/A,220.00,Epson,N/A,N/A,N/A,Plastic,Epson,375x347x179,375,347,179,5760x1440,742,742,0.742,0.7
-Sony Bravia 55",LED Televisions,EN_SKU_1_0,1200.00,Sony,Vibrant 4K display,15.5,Black,N/A,N/A,1200.00,Sony,N/A,N/A,N/A,Plastic/Metal,Sony,1230x710x58,1230,710,58,3840x2160,N/A,N/A,N/A,N/A
-LG OLED65,OLED Televisions,EN_SKU_1_1,2500.00,LG,Stunning picture quality,18.2,Black,N/A,N/A,2500.00,LG,N/A,N/A,N/A,Glass/Aluminum,LG,1449x830x46,1449,830,46,3840x2160,N/A,N/A,N/A,N/A
-Samsung QLED 4K,QLED Televisions,EN_SKU_1_2,1500.00,Samsung,Quantum dot technology,16.0,Black,N/A,N/A,1500.00,Samsung,N/A,N/A,N/A,Metal,Samsung,1450x830x60,1450,830,60,3840x2160,N/A,N/A,N/A,N/A
-Daikin Split AC,Air Conditioning Units,EN_SKU_8_0,680.00,Daikin,Energy-efficient split AC,20.9,White,2243,N/A,680.00,Daikin,N/A,N/A,N/A,Plastic,Daikin,770x280x225,770,280,225,N/A,2243,2243,2.243,2.2
-Samsung Wind-Free,HVAC Systems,EN_SKU_8_1,920.00,Samsung,Wind-Free cooling technology,39.6,Black,2629,N/A,920.00,Samsung,N/A,N/A,N/A,Plastic,Samsung,880x296x215,880,296,215,N/A,2629,2629,2.629,2.6
-LG DualCool,Home Cooling Solutions,EN_SKU_8_2,750.00,LG,Dual Inverter compressor AC,65.1,White,2273,N/A,750.00,LG,N/A,N/A,N/A,Plastic,LG,900x300x200,900,300,200,N/A,2273,2273,2.273,2.3
-LG DualCool 2,Home Cooling Solutions,EN_SKU_8_3,780.00,LG,Dual Inverter compressor AC,65.1,White,2273,N/A,780.00,LG,N/A,N/A,N/A,Plastic,LG,900x300x200,900,300,200,N/A,2273,2273,2.273,2.3
+Product Name,Category,SKU,Price (USD),Brand,Description,Weight (kg),Color,Power Usage (W),Water Tank (L),Unit Price,Manufacturer,RAM Size,Storage Capacity,Screen Inches,Build Material,Vendor,Dimensions,Width,Height,Length,Screen Resolution,max power - kWatt
+Nespresso Vertuo,Coffee Makers,EN_SKU_10_1,149,Nespresso,Single-serve coffee brewing machine,4.84,Red,1485,1.9,149,Nespresso,N/A,N/A,N/A,Plastic,Nespresso,140x240x310,140,240,310,1920x1080,1.5
+DeLonghi Magnifica,Espresso Machines,EN_SKU_10_0,600,DeLonghi,Automatic bean-to-cup coffee machine,3.42,Silver,1409,1.8,600,DeLonghi,N/A,N/A,N/A,Metal/Plastic,DeLonghi,238x430x350,238,430,350,1920x1200,1.4
+Philips 3200 Series,Home Coffee Appliances,EN_SKU_10_2,450,Philips,Fully automatic espresso machine,6.26,Black,815,1.6,450,Philips,N/A,N/A,N/A,Plastic,Philips,247x366x434,247,366,434,2560x1600,0.8
+Wayfair Dining Table,Dining Room Furniture,EN_SKU_4_2,299.99,Wayfair,Modern wooden dining table,45,Gray,N/A,N/A,299.99,Wayfair,N/A,N/A,N/A,Wood,Wayfair,1400x800x750,1400,800,750,N/A,N/A
+Ashley Sofa Set,Living Room Furniture,EN_SKU_4_1,749.5,Ashley Furniture,Comfortable sectional sofa,70,White,N/A,N/A,749.5,Ashley Furniture,N/A,N/A,N/A,Fabric,Ashley Furniture,2400x1600x900,2400,1600,900,N/A,N/A
+HP LaserJet M404,Laser Printers,EN_SKU_9_0,350,HP,Efficient monochrome laser printer,9.8,Beige,530,N/A,350,HP,N/A,N/A,N/A,Plastic,HP,400x300x200,400,300,200,1200x1200,0.5
+Canon Pixma G7020,Inkjet Printers,EN_SKU_9_1,279,Canon,Wireless all-in-one printer,8,Black,877,N/A,279,Canon,N/A,N/A,N/A,Plastic,Canon,410x330x195,410,330,195,4800x1200,0.9
+Epson EcoTank L3250,EcoTank Printers,EN_SKU_9_2,220,Epson,Cartridge-free printing,3.9,White,742,N/A,220,Epson,N/A,N/A,N/A,Plastic,Epson,375x347x179,375,347,179,5760x1440,0.7
+"Sony Bravia 55""",LED Televisions,EN_SKU_1_0,1200,Sony,Vibrant 4K display,15.5,Black,N/A,N/A,1200,Sony,N/A,N/A,N/A,Plastic/Metal,Sony,1230x710x58,1230,710,58,3840x2160,N/A
+LG OLED65,OLED Televisions,EN_SKU_1_1,2500,LG,Stunning picture quality,18.2,Black,N/A,N/A,2500,LG,N/A,N/A,N/A,Glass/Aluminum,LG,1449x830x46,1449,830,46,3840x2160,N/A
+Samsung QLED 4K,QLED Televisions,EN_SKU_1_2,1500,Samsung,Quantum dot technology,16,Black,N/A,N/A,1500,Samsung,N/A,N/A,N/A,Metal,Samsung,1450x830x60,1450,830,60,3840x2160,N/A
+Daikin Split AC,Air Conditioning Units,EN_SKU_8_0,680,Daikin,Energy-efficient split AC,20.9,White,2243,N/A,680,Daikin,N/A,N/A,N/A,Plastic,Daikin,770x280x225,770,280,225,N/A,2.2
+Samsung Wind-Free,HVAC Systems,EN_SKU_8_1,920,Samsung,Wind-Free cooling technology,39.6,Black,2629,N/A,920,Samsung,N/A,N/A,N/A,Plastic,Samsung,880x296x215,880,296,215,N/A,2.6
+LG DualCool,Home Cooling Solutions,EN_SKU_8_2,750,LG,Dual Inverter compressor AC,65.1,White,2273,N/A,750,LG,N/A,N/A,N/A,Plastic,LG,900x300x200,900,300,200,N/A,2.3
+LG DualCool 2,Home Cooling Solutions,EN_SKU_8_3,780,LG,Dual Inverter compressor AC,65.1,White,2273,N/A,780,LG,N/A,N/A,N/A,Plastic,LG,900x300x200,900,300,200,N/A,2.3

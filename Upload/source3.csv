@@ -1,21 +1,21 @@
-Product Name,Category,SKU,Price (USD),Manufacturer,Main Features,Dimensions (mm),Material,RAM (GB),Storage (GB),Screen Resolution,Noise Level (dB),Screen Size (in),Unit Price,Brand,RAM Size,Storage Capacity,Screen Inches,Build Material,Vendor,Width,Height,Length,Resolution,WT,Watt,Power (kW),kWatt
-HP Pavilion 15,Laptops,EN_SKU_3_0,850.00,HP,Fast processor,358x242x19,Metal/Plastic,16,512,1920x1080,N/A,15.6,850.00,HP,16,512,15.6,Metal/Plastic,HP,358,242,19,1920x1080,65,65,0.065,0.07
-MacBook Air M2,Notebooks,EN_SKU_3_1,1199.00,Apple,Ultra-thin and powerful,304x215x11,Aluminum,8,256,2560x1600,N/A,13.6,1199.00,Apple,8,256,13.6,Aluminum,Apple,304,215,11,2560x1600,60,60,0.06,0.06
-Dell XPS 13,Portable Computers,EN_SKU_3_2,1300.00,Dell,Compact design,296x199x15,Aluminum,16,512,1920x1200,N/A,13.4,1300.00,Dell,16,512,13.4,Aluminum,Dell,296,199,15,1920x1200,55,55,0.055,0.06
-Sony Bravia OLED 55",OLED TVs,S2-TV01,1500.00,Sony,Vivid OLED display,1229x710x58,Glass/Plastic,N/A,N/A,3840x2160,N/A,55,1500.00,Sony,N/A,N/A,55,Glass/Plastic,Sony,1229,710,58,3840x2160,N/A,N/A,N/A,N/A
-HP Spectre x360,Convertible Laptops,S2-PC01,1400.00,HP,2-in-1 convertible,306x194x16,Aluminum,16,1024,1920x1080,N/A,13.3,1400.00,HP,16,1024,13.3,Aluminum,HP,306,194,16,1920x1080,60,60,0.06,0.06
-TCL Roku 43",Smart Televisions,S2-TV02,320.00,TCL,Integrated Roku OS,970x567x80,Plastic,N/A,N/A,1920x1080,N/A,43,320.00,TCL,N/A,N/A,43,Plastic,TCL,970,567,80,1920x1080,N/A,N/A,N/A,N/A
-Drill Makita LXT Brushless,Cordless Drills,S2-DR02,175.00,Makita,Cordless and powerful,200x80x250,Metal/Plastic,N/A,N/A,N/A,80,N/A,175.00,Makita,N/A,N/A,N/A,Metal/Plastic,Makita,200,80,250,N/A,80,80,0.08,0.08
-Drill Makita Electric Hand,Electric Drills,S2-DR01,85.00,Makita,Lightweight and ergonomic,180x60x220,Plastic,N/A,N/A,N/A,75,N/A,85.00,Makita,N/A,N/A,N/A,Plastic,Makita,180,60,220,N/A,75,75,0.075,0.08
-Drill DeWalt XR Cordless,Heavy Duty Tools,S3-DR01,210.00,DeWalt,Heavy-duty performance,210x85x260,Metal/Rubber,N/A,N/A,N/A,82,N/A,210.00,DeWalt,N/A,N/A,N/A,Metal/Rubber,DeWalt,210,85,260,N/A,82,82,0.082,0.08
-Wayfair Dining Table,Dining Furniture,EN_SKU_4_2,299.99,Wayfair,Solid wood construction,1400x800x750,Wood,N/A,N/A,N/A,N/A,N/A,299.99,Wayfair,N/A,N/A,N/A,Wood,Wayfair,1400,800,750,N/A,N/A,N/A,N/A,N/A
-Ashley Sofa Set,Living Room Sets,EN_SKU_4_1,749.50,Ashley Furniture,Sectional with chaise,2400x1600x900,Fabric,N/A,N/A,N/A,N/A,N/A,749.50,Ashley Furniture,N/A,N/A,N/A,Fabric,Ashley Furniture,2400,1600,900,N/A,N/A,N/A,N/A,N/A
-IKEA Malm Bed,Bedroom Furniture,EN_SKU_4_0,199.00,IKEA,Minimalist design,2000x1600x300,Particleboard,N/A,N/A,N/A,N/A,N/A,199.00,IKEA,N/A,N/A,N/A,Particleboard,IKEA,2000,1600,300,N/A,N/A,N/A,N/A,N/A
-Nespresso Vertuo,Coffee Makers,EN_SKU_10_1,149.00,Nespresso,Single-serve brewing,140x240x310,Plastic,N/A,N/A,N/A,60,N/A,149.00,Nespresso,N/A,N/A,N/A,Plastic,Nespresso,140,240,310,N/A,60,60,0.06,0.06
-DeLonghi Magnifica,Espresso Machines,EN_SKU_10_0,600.00,DeLonghi,Bean-to-cup coffee,238x430x350,Metal/Plastic,N/A,N/A,N/A,65,N/A,600.00,DeLonghi,N/A,N/A,N/A,Metal/Plastic,DeLonghi,238,430,350,N/A,65,65,0.065,0.07
-Philips 3200 Series,Home Coffee Appliances,EN_SKU_10_2,450.00,Philips,Milk frother,247x366x434,Plastic,N/A,N/A,N/A,62,N/A,450.00,Philips,N/A,N/A,N/A,Plastic,Philips,247,366,434,N/A,62,62,0.062,0.06
-Daikin Split AC,Air Conditioning Units,EN_SKU_8_0,680.00,Daikin,Inverter technology,770x280x225,Plastic,N/A,N/A,N/A,47,N/A,680.00,Daikin,N/A,N/A,N/A,Plastic,Daikin,770,280,225,N/A,47,47,0.047,0.05
-Samsung Wind-Free,HVAC Systems,EN_SKU_8_1,920.00,Samsung,Wind-Free cooling,880x296x215,Plastic,N/A,N/A,N/A,45,N/A,920.00,Samsung,N/A,N/A,N/A,Plastic,Samsung,880,296,215,N/A,45,45,0.045,0.05
-Hammer,Hand Tools Kit,SKU_1_9,15.00,Stanley,Claw hammer with comfortable grip,330x120x30,Steel/Wood,N/A,N/A,N/A,N/A,N/A,15.00,Stanley,N/A,N/A,N/A,Steel/Wood,Stanley,330,120,30,N/A,N/A,N/A,N/A,N/A
-Screwdriver Set,Tool Kits,SKU_1_10,25.00,Craftsman,Precision set for small repairs,200x100x40,Steel/Plastic,N/A,N/A,N/A,N/A,N/A,25.00,Craftsman,N/A,N/A,N/A,Steel/Plastic,Craftsman,200,100,40,N/A,N/A,N/A,N/A,N/A
-LG DualCool,Household Appliances,EN_SKU_8_2,750.00,LG,Dual Inverter Compressor,998x345x210,Plastic,N/A,N/A,N/A,44,N/A,750.00,LG,N/A,N/A,N/A,Plastic
+Product Name,Category,SKU,Price (USD),Manufacturer,Main Features,Dimensions (mm),Material,RAM (GB),Storage (GB),Screen Resolution,Noise Level (dB),Screen Size (in),Unit Price,Brand,RAM Size,Storage Capacity,Screen Inches,Build Material,Vendor,Width,Height,Length,Resolution,power (W)
+HP Pavilion 15,Laptops,EN_SKU_3_0,850,HP,Fast processor,358x242x19,Metal/Plastic,16,512,1920x1080,,15.6,850,HP,16,512,15.6,Metal/Plastic,HP,358,242,19,1920x1080,65 W
+MacBook Air M2,Notebooks,EN_SKU_3_1,1199,Apple,Ultra-thin and powerful,304x215x11,Aluminum,8,256,2560x1600,,13.6,1199,Apple,8,256,13.6,Aluminum,Apple,304,215,11,2560x1600,60W
+Dell XPS 13,Portable Computers,EN_SKU_3_2,1300,Dell,Compact design,296x199x15,Aluminum,16,512,1920x1200,,13.4,1300,Dell,16,512,13.4,Aluminum,Dell,296,199,15,1920x1200,55W
+"Sony Bravia OLED 55""",OLED TVs,S2-TV01,1500,Sony,Vivid OLED display,1229x710x58,Glass/Plastic,,,3840x2160,,55,1500,Sony,,,55,Glass/Plastic,Sony,1229,710,58,3840x2160,
+HP Spectre x360,Convertible Laptops,S2-PC01,1400,HP,2-in-1 convertible,306x194x16,Aluminum,16,1024,1920x1080,,13.3,1400,HP,16,1024,13.3,Aluminum,HP,306,194,16,1920x1080,60W
+"TCL Roku 43""",Smart Televisions,S2-TV02,320,TCL,Integrated Roku OS,970x567x80,Plastic,,,1920x1080,,43,320,TCL,,,43,Plastic,TCL,970,567,80,1920x1080,
+Drill Makita LXT Brushless,Cordless Drills,S2-DR02,175,Makita,Cordless and powerful,200x80x250,Metal/Plastic,,,,80,,175,Makita,,,,Metal/Plastic,Makita,200,80,250,,80W
+Drill Makita Electric Hand,Electric Drills,S2-DR01,85,Makita,Lightweight and ergonomic,180x60x220,Plastic,,,,75,,85,Makita,,,,Plastic,Makita,180,60,220,,75W
+Drill DeWalt XR Cordless,Heavy Duty Tools,S3-DR01,210,DeWalt,Heavy-duty performance,210x85x260,Metal/Rubber,,,,82,,210,DeWalt,,,,Metal/Rubber,DeWalt,210,85,260,,82W
+Wayfair Dining Table,Dining Furniture,EN_SKU_4_2,299.99,Wayfair,Solid wood construction,1400x800x750,Wood,,,,,,299.99,Wayfair,,,,Wood,Wayfair,1400,800,750,,
+Ashley Sofa Set,Living Room Sets,EN_SKU_4_1,749.5,Ashley Furniture,Sectional with chaise,2400x1600x900,Fabric,,,,,,749.5,Ashley Furniture,,,,Fabric,Ashley Furniture,2400,1600,900,,
+IKEA Malm Bed,Bedroom Furniture,EN_SKU_4_0,199,IKEA,Minimalist design,2000x1600x300,Particleboard,,,,,,199,IKEA,,,,Particleboard,IKEA,2000,1600,300,,
+Nespresso Vertuo,Coffee Makers,EN_SKU_10_1,149,Nespresso,Single-serve brewing,140x240x310,Plastic,,,,60,,149,Nespresso,,,,Plastic,Nespresso,140,240,310,,60W
+DeLonghi Magnifica,Espresso Machines,EN_SKU_10_0,600,DeLonghi,Bean-to-cup coffee,238x430x350,Metal/Plastic,,,,65,,600,DeLonghi,,,,Metal/Plastic,DeLonghi,238,430,350,,65W
+Philips 3200 Series,Home Coffee Appliances,EN_SKU_10_2,450,Philips,Milk frother,247x366x434,Plastic,,,,62,,450,Philips,,,,Plastic,Philips,247,366,434,,62W
+Daikin Split AC,Air Conditioning Units,EN_SKU_8_0,680,Daikin,Inverter technology,770x280x225,Plastic,,,,47,,680,Daikin,,,,Plastic,Daikin,770,280,225,,47W
+Samsung Wind-Free,HVAC Systems,EN_SKU_8_1,920,Samsung,Wind-Free cooling,880x296x215,Plastic,,,,45,,920,Samsung,,,,Plastic,Samsung,880,296,215,,45W
+Hammer,Hand Tools Kit,SKU_1_9,15,Stanley,Claw hammer with comfortable grip,330x120x30,Steel/Wood,,,,,,15,Stanley,,,,Steel/Wood,Stanley,330,120,30,,
+Screwdriver Set,Tool Kits,SKU_1_10,25,Craftsman,Precision set for small repairs,200x100x40,Steel/Plastic,,,,,,25,Craftsman,,,,Steel/Plastic,Craftsman,200,100,40,,
+LG DualCool,Household Appliances,EN_SKU_8_2,750,LG,Dual Inverter Compressor,998x345x210,Plastic,,,,44,,750,LG,,,,Plastic,,,,,,

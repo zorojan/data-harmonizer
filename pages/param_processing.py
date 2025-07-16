@@ -148,7 +148,7 @@ if not df_param.empty:
     rl_threshold = None
     
     if use_rapidfuzz:
-        rf_threshold = st.slider("Порог схожести для RapidFuzz (%)", 60, 100, 85, 1, key="rf_thresh")
+        rf_threshold = st.slider("Порог схожести для RapidFuzz (%)", 60, 100, 70, 1, key="rf_thresh")
     
     if use_sentence_transformers:
         st_threshold = st.slider("Порог схожести для Sentence-Transformers (%)", 60, 100, 75, 1, key="st_thresh")
