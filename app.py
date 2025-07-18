@@ -7,6 +7,221 @@ import os
 
 st.title("Category Similarity & Merging")
 
+# === ФУНКЦИИ ДЛЯ ИЕРАРХИЧЕСКОЙ КЛАСТЕРИЗАЦИИ ===
+
+def parse_hierarchical_categories(df, category_col, separator="/"):
+    """
+    Парсит иерархические категории в отдельные уровни
+    Например: "Bench Tools/Circular saws" → Level1: "Bench Tools", Level2: "Circular saws"
+    """
+    df_expanded = df.copy()
+    
+    # Разбиваем категории по разделителю
+    split_cats = df_expanded[category_col].astype(str).str.split(separator, expand=True)
+    
+    # Определяем количество уровней
+    max_levels = split_cats.shape[1]
+    
+    # Создаем колонки для каждого уровня
+    for level in range(max_levels):
+        level_name = f"category_level_{level + 1}"
+        df_expanded[level_name] = split_cats[level].str.strip() if level < split_cats.shape[1] else None
+    
+    # Очищаем пустые значения
+    for level in range(1, max_levels + 1):
+        level_name = f"category_level_{level}"
+        if level_name in df_expanded.columns:
+            df_expanded[level_name] = df_expanded[level_name].fillna('')
+    
+    return df_expanded, max_levels
+
+def get_hierarchical_embeddings(categories, model, max_levels=3):
+    """
+    Создает эмбеддинги для иерархических категорий с весами по уровням
+    """
+    all_embeddings = []
+    
+    for category in categories:
+        # Разбиваем категорию на уровни
+        levels = [level.strip() for level in str(category).split('/') if level.strip()]
+        
+        # Создаем эмбеддинги для каждого уровня с весами
+        level_embeddings = []
+        
+        for i, level in enumerate(levels[:max_levels]):
+            if level:
+                # Вес уменьшается с глубиной уровня (приоритет верхним уровням)
+                weight = 1.0 / (i + 1)  # 1.0, 0.5, 0.33, 0.25...
+                
+                level_embedding = model.encode([level])[0]
+                level_embeddings.append(level_embedding * weight)
+        
+        if level_embeddings:
+            # Объединяем эмбеддинги всех уровней
+            combined_embedding = np.mean(level_embeddings, axis=0)
+        else:
+            # Fallback для пустых категорий
+            combined_embedding = model.encode([str(category)])[0]
+        
+        all_embeddings.append(combined_embedding)
+    
+    return np.array(all_embeddings)
+
+def hierarchical_clustering_by_levels(df, category_col, model, eps, min_samples, separator="/"):
+    """
+    Выполняет иерархическую кластеризацию по уровням
+    """
+    # 1. Парсим иерархические категории
+    df_expanded, max_levels = parse_hierarchical_categories(df, category_col, separator)
+    
+    results = {}
+    
+    # 2. Кластеризация по каждому уровню (начиная с самого детального)
+    for level in range(max_levels, 0, -1):
+        level_name = f"category_level_{level}"
+        
+        if level_name not in df_expanded.columns:
+            continue
+            
+        # Получаем уникальные категории этого уровня
+        level_categories = df_expanded[df_expanded[level_name] != ''][level_name].unique()
+        
+        if len(level_categories) < 2:
+            continue
+            
+        # Создаем эмбеддинги для этого уровня
+        level_embeddings = model.encode(level_categories)
+        
+        # Кластеризация
+        clustering = DBSCAN(eps=eps, min_samples=min_samples, metric="cosine").fit(level_embeddings)
+        
+        # Сохраняем результаты
+        level_clusters = pd.DataFrame({
+            "category": level_categories,
+            "cluster": clustering.labels_,
+            "level": level
+        })
+        
+        results[f"level_{level}"] = level_clusters
+        
+        # Информация о результатах
+        clusters_count = len(set(clustering.labels_)) - (1 if -1 in clustering.labels_ else 0)
+        st.write(f"**Уровень {level} ({level_name}):** {len(level_categories)} категорий → {clusters_count} кластеров")
+    
+    return results, df_expanded
+
+def hierarchical_clustering(df, category_col, separator="/", strategy="weighted_combined", threshold=0.35):
+    """
+    Основная функция иерархической кластеризации
+    
+    Args:
+        df: DataFrame с данными
+        category_col: Series с категориями 
+        separator: разделитель уровней в категориях
+        strategy: стратегия кластеризации
+        threshold: порог для DBSCAN
+    
+    Returns:
+        DataFrame с результатами кластеризации
+    """
+    import numpy as np
+    from sentence_transformers import SentenceTransformer
+    from sklearn.cluster import DBSCAN
+    
+    # Инициализируем модель
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    
+    # Парсинг иерархических категорий
+    df_expanded, max_levels = parse_hierarchical_categories(df, category_col, separator)
+    
+    if strategy == "detailed_first":
+        # Сначала кластеризуем самые детальные, потом родительские
+        final_clusters = {}
+        cluster_id = 0
+        
+        for level in range(max_levels, 0, -1):  # От самого детального к общему
+            level_name = f"category_level_{level}"
+            if level_name not in df_expanded.columns:
+                continue
+                
+            # Берем категории этого уровня (не пустые)
+            level_data = df_expanded[df_expanded[level_name] != '']
+            if len(level_data) == 0:
+                continue
+                
+            categories = level_data[level_name].unique()
+            embeddings = model.encode(categories.tolist())
+            
+            clustering = DBSCAN(eps=threshold, min_samples=1, metric="cosine").fit(embeddings)
+            
+            for i, cat in enumerate(categories):
+                if clustering.labels_[i] != -1:
+                    # Находим все исходные категории для этого уровня
+                    original_cats = level_data[level_data[level_name] == cat][category_col].unique()
+                    for orig_cat in original_cats:
+                        if orig_cat not in final_clusters:
+                            final_clusters[orig_cat] = cluster_id
+                    cluster_id += 1
+                    
+    elif strategy == "parent_fallback":
+        # Сначала подкатегории, если не сработало - родители
+        final_clusters = {}
+        cluster_id = 0
+        
+        # Группируем по исходным категориям
+        for orig_cat in df_expanded[category_col].unique():
+            if orig_cat in final_clusters:
+                continue
+                
+            # Пробуем от самого детального уровня к общему
+            clustered = False
+            for level in range(max_levels, 0, -1):
+                level_name = f"category_level_{level}"
+                if level_name not in df_expanded.columns:
+                    continue
+                    
+                # Получаем значение этого уровня для данной категории
+                cat_data = df_expanded[df_expanded[category_col] == orig_cat]
+                if len(cat_data) == 0:
+                    continue
+                    
+                level_value = cat_data[level_name].iloc[0]
+                if level_value == '':
+                    continue
+                
+                # Ищем похожие на этом уровне
+                similar_cats = df_expanded[
+                    (df_expanded[level_name] == level_value) &
+                    (~df_expanded[category_col].isin(final_clusters.keys()))
+                ]
+                
+                if len(similar_cats) > 1:  # Есть похожие
+                    for _, row in similar_cats.iterrows():
+                        final_clusters[row[category_col]] = cluster_id
+                    cluster_id += 1
+                    clustered = True
+                    break
+                    
+            if not clustered:
+                final_clusters[orig_cat] = -1  # ungrouped
+                
+    else:  # weighted_combined
+        # Взвешенная кластеризация по всем уровням
+        categories = df[category_col].unique()
+        hierarchical_embeddings = get_hierarchical_embeddings(categories, model)
+        
+        clustering = DBSCAN(eps=threshold, min_samples=1, metric="cosine").fit(hierarchical_embeddings)
+        
+        final_clusters = dict(zip(categories, clustering.labels_))
+    
+    # Создаем результирующий DataFrame
+    result_df = pd.DataFrame([
+        {'category': cat, 'cluster': cluster_id}
+        for cat, cluster_id in final_clusters.items()
+    ])
+    
+    return result_df
+
 # 1. Upload files or load demo data
 st.markdown('---')
 demo_files = [
@@ -20,30 +235,69 @@ def robust_read_csv(file_or_path):
     """
     More robust CSV reading function that tries different encodings,
     delimiters, and handles bad lines to prevent ParserError.
+    Now supports complex headers with quotes, brackets, and special characters.
     """
     # For file-like objects from upload, we need to be able to seek 
     is_file_like = hasattr(file_or_path, 'seek')
 
-    # List of configurations to try
+    # List of configurations to try - добавлен приоритет для точки с запятой
     configs = [
-        {'encoding': 'utf-8', 'sep': ',', 'on_bad_lines': 'warn'},
-        {'encoding': 'utf-8', 'sep': ';', 'on_bad_lines': 'warn'},
-        {'encoding': 'cp1251', 'sep': ',', 'on_bad_lines': 'warn'},
-        {'encoding': 'cp1251', 'sep': ';', 'on_bad_lines': 'warn'},
-        # Final attempt with python engine which is more robust
-        {'encoding': 'utf-8', 'sep': None, 'engine': 'python', 'on_bad_lines': 'skip'}
+        # Приоритет для точки с запятой (часто используется в европейских CSV)
+        {'encoding': 'utf-8', 'sep': ';', 'on_bad_lines': 'warn', 'quotechar': '"'},
+        {'encoding': 'cp1251', 'sep': ';', 'on_bad_lines': 'warn', 'quotechar': '"'},
+        {'encoding': 'utf-8-sig', 'sep': ';', 'on_bad_lines': 'warn', 'quotechar': '"'},  # BOM support
+        {'encoding': 'windows-1252', 'sep': ';', 'on_bad_lines': 'warn', 'quotechar': '"'},
+        
+        # Стандартные запятые
+        {'encoding': 'utf-8', 'sep': ',', 'on_bad_lines': 'warn', 'quotechar': '"'},
+        {'encoding': 'cp1251', 'sep': ',', 'on_bad_lines': 'warn', 'quotechar': '"'},
+        {'encoding': 'utf-8-sig', 'sep': ',', 'on_bad_lines': 'warn', 'quotechar': '"'},
+        
+        # Автоопределение разделителя
+        {'encoding': 'utf-8', 'sep': None, 'engine': 'python', 'on_bad_lines': 'skip', 'quotechar': '"'},
+        {'encoding': 'cp1251', 'sep': None, 'engine': 'python', 'on_bad_lines': 'skip', 'quotechar': '"'},
+        
+        # Без кавычек (если файл имеет проблемы с кавычками)
+        {'encoding': 'utf-8', 'sep': ';', 'on_bad_lines': 'warn', 'quoting': 3},  # QUOTE_NONE
+        {'encoding': 'utf-8', 'sep': ',', 'on_bad_lines': 'warn', 'quoting': 3},
+        
+        # Последняя попытка с максимальной совместимостью
+        {'encoding': 'latin1', 'sep': ';', 'engine': 'python', 'on_bad_lines': 'skip'},
+        {'encoding': 'latin1', 'sep': ',', 'engine': 'python', 'on_bad_lines': 'skip'}
     ]
 
-    for config in configs:
+    last_error = None
+    for i, config in enumerate(configs):
         try:
             if is_file_like:
                 file_or_path.seek(0)
-            return pd.read_csv(file_or_path, **config)
-        except (UnicodeDecodeError, pd.errors.ParserError, ValueError):
+            
+            df = pd.read_csv(file_or_path, **config)
+            
+            # Проверяем качество загрузки
+            if len(df.columns) > 1 and len(df) > 0:
+                # Очищаем заголовки от лишних символов
+                df.columns = [str(col).strip().strip('"').strip("'") for col in df.columns]
+                
+                # Логируем успешную конфигурацию для отладки
+                sep_name = config.get('sep', 'auto-detect')
+                encoding_name = config.get('encoding', 'default')
+                if i < 3:  # Показываем только для первых попыток
+                    st.info(f"✅ CSV загружен: разделитель='{sep_name}', кодировка='{encoding_name}', колонок={len(df.columns)}")
+                
+                return df
+        except (UnicodeDecodeError, pd.errors.ParserError, ValueError, Exception) as e:
+            last_error = e
             continue # Try next configuration
 
-    # If all attempts fail, raise an error
-    st.error(f"Fatal Error: Could not parse the CSV file: {getattr(file_or_path, 'name', file_or_path)}. The file may be corrupted or in an unsupported format.")
+    # If all attempts fail, raise an error with details
+    file_name = getattr(file_or_path, 'name', str(file_or_path))
+    st.error(f"❌ Не удалось загрузить CSV файл: {file_name}")
+    st.error(f"Последняя ошибка: {last_error}")
+    st.warning("💡 Попробуйте:")
+    st.warning("- Пересохранить файл в UTF-8 кодировке")
+    st.warning("- Проверить корректность CSV формата")
+    st.warning("- Убедиться что разделители и кавычки используются корректно")
     return None
 
 
@@ -171,18 +425,49 @@ else:
 if df is not None:
     # Панель настроек
     st.markdown("### Панель настроек")
-    group_only_diff_sources = st.checkbox(
-        "Группировать категории только если они из разных источников",
-        value=True,
-        help="Если включено: объединяются только категории из разных файлов. Уникальные категории из одного источника остаются отдельными. Если отключено: группируются все похожие категории независимо от источника."
-    )
     
-    # Добавляем чекбокс для ручного режима
-    manual_mode = st.checkbox(
-        "Ручной режим обработки (manual mode)",
-        value=False,
-        help="В автоматическом режиме все кластеры (кроме ungrouped) объединяются автоматически. В ручном режиме вы можете выбирать какие кластеры объединять."
-    )
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        group_only_diff_sources = st.checkbox(
+            "Группировать категории только если они из разных источников",
+            value=True,
+            help="Если включено: объединяются только категории из разных файлов. Уникальные категории из одного источника остаются отдельными. Если отключено: группируются все похожие категории независимо от источника."
+        )
+        
+        # Добавляем чекбокс для ручного режима
+        manual_mode = st.checkbox(
+            "Ручной режим обработки (manual mode)",
+            value=False,
+            help="В автоматическом режиме все кластеры (кроме ungrouped) объединяются автоматически. В ручном режиме вы можете выбирать какие кластеры объединять."
+        )
+    
+    with col2:
+        # 🌳 НОВЫЙ ЧЕКБОКС ДЛЯ ИЕРАРХИЧЕСКОЙ КЛАСТЕРИЗАЦИИ
+        hierarchical_mode = st.checkbox(
+            "🌳 Иерархическая кластеризация для категорий",
+            value=False,
+            help="Включите если ваши категории имеют структуру 'Родитель/Подкатегория/Подподкатегория' (например: 'Bench Tools/Circular saws'). Это значительно улучшит качество кластеризации для структурированных данных."
+        )
+        
+        if hierarchical_mode:
+            # Настройки для иерархического режима
+            separator = st.text_input(
+                "Разделитель уровней", 
+                value="/", 
+                help="Символ разделяющий уровни категорий (обычно '/' или '\\')"
+            )
+            
+            clustering_strategy = st.selectbox(
+                "Стратегия кластеризации",
+                ["weighted_combined", "detailed_first", "parent_fallback"],
+                format_func=lambda x: {
+                    "weighted_combined": "🎯 Взвешенное объединение (рекомендуется)",
+                    "detailed_first": "📊 Сначала детальные → потом родительские",
+                    "parent_fallback": "🔄 Подкатегории → если не сработало, то родители"
+                }[x],
+                help="Как обрабатывать многоуровневые категории"
+            )
 
     # 2. Select category column (only columns with 'category' in name are suggested)
     category_candidates = [col for col in df.columns if 'category' in col.lower()]
@@ -231,33 +516,59 @@ if df is not None:
                 st.warning("No more categories left for clustering. All clusters are fixed.")
                 df_clusters = pd.DataFrame({"original_category": [], "cluster": []})
             else:
-                with st.spinner("Loading model and generating embeddings. This may take a few minutes on first run..."):
-                    import torch
-                    # Try to force CPU and handle meta tensor error
-                    try:
-                        model = SentenceTransformer(model_name, device="cpu")
-                        # Check for meta tensors and reload if needed
-                        for name, param in model.named_parameters():
-                            if hasattr(param, 'is_meta') and param.is_meta:
-                                st.warning(f"Parameter {name} is a meta tensor. Attempting to reload on CPU...")
-                                model = SentenceTransformer(model_name, device="cpu", trust_remote_code=True)
-                                break
-                        embeddings = model.encode(categories, show_progress_bar=False)
-                        st.write("Embeddings shape:", np.array(embeddings).shape)
-                    except RuntimeError as e:
-                        st.error(f"PyTorch RuntimeError: {e}\n\nПопробуйте обновить PyTorch и sentence-transformers, либо используйте только CPU-окружение.")
-                        st.stop()
-                    except Exception as e:
-                        st.error(f"Model loading failed: {e}\n\nThis error may be caused by a mismatch between PyTorch and your hardware. Try updating PyTorch, or running on a different machine/environment.")
-                        st.stop()
+                # 🌳 ИЕРАРХИЧЕСКАЯ КЛАСТЕРИЗАЦИЯ
+                if hierarchical_mode:
+                    st.info("🌳 Использую иерархическую кластеризацию для улучшения результатов")
+                    
+                    # Создаем DataFrame с категориями и указываем имя колонки как строку
+                    temp_df = pd.DataFrame({'category': categories})
+                    
+                    # Используем иерархическую кластеризацию
+                    clustered_df = hierarchical_clustering(
+                        temp_df,  
+                        'category',  # Передаем имя колонки как строку
+                        separator=separator,
+                        strategy=clustering_strategy,
+                        threshold=0.35  # Можно настроить
+                    )
+                    
+                    # Преобразуем результат в формат для дальнейшей обработки
+                    df_clusters = pd.DataFrame({
+                        "original_category": clustered_df['category'].tolist(),
+                        "cluster": clustered_df['cluster'].tolist()
+                    })
+                    
+                    st.success(f"✅ Иерархическая кластеризация завершена! Найдено {len(df_clusters['cluster'].unique())} кластеров")
+                    
+                else:
+                    # Обычная кластеризация
+                    with st.spinner("Loading model and generating embeddings. This may take a few minutes on first run..."):
+                        import torch
+                        # Try to force CPU and handle meta tensor error
+                        try:
+                            model = SentenceTransformer(model_name, device="cpu")
+                            # Check for meta tensors and reload if needed
+                            for name, param in model.named_parameters():
+                                if hasattr(param, 'is_meta') and param.is_meta:
+                                    st.warning(f"Parameter {name} is a meta tensor. Attempting to reload on CPU...")
+                                    model = SentenceTransformer(model_name, device="cpu", trust_remote_code=True)
+                                    break
+                            embeddings = model.encode(categories, show_progress_bar=False)
+                            st.write("Embeddings shape:", np.array(embeddings).shape)
+                        except RuntimeError as e:
+                            st.error(f"PyTorch RuntimeError: {e}\n\nПопробуйте обновить PyTorch и sentence-transformers, либо используйте только CPU-окружение.")
+                            st.stop()
+                        except Exception as e:
+                            st.error(f"Model loading failed: {e}\n\nThis error may be caused by a mismatch between PyTorch and your hardware. Try updating PyTorch, or running on a different machine/environment.")
+                            st.stop()
 
-                eps = st.slider("DBSCAN eps (distance threshold)", 0.1, 1.0, 0.4, 0.05, key="eps_main")
-                min_samples = st.slider("DBSCAN min_samples", 1, 5, 2, key="min_samples_main")
-                clustering = DBSCAN(eps=eps, min_samples=min_samples, metric="cosine").fit(embeddings)
-                df_clusters = pd.DataFrame({
-                    "original_category": categories,
-                    "cluster": clustering.labels_
-                })
+                    eps = st.slider("DBSCAN eps (distance threshold)", 0.1, 1.0, 0.4, 0.05, key="eps_main")
+                    min_samples = st.slider("DBSCAN min_samples", 1, 5, 2, key="min_samples_main")
+                    clustering = DBSCAN(eps=eps, min_samples=min_samples, metric="cosine").fit(embeddings)
+                    df_clusters = pd.DataFrame({
+                        "original_category": categories,
+                        "cluster": clustering.labels_
+                    })
 
             # АВТОМАТИЧЕСКИЙ РЕЖИМ - объединяем все кластеры (кроме ungrouped) автоматически
             if not manual_mode and len(df_clusters) > 0:

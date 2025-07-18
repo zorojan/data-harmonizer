@@ -192,7 +192,7 @@ if not df_param.empty:
                 st.warning("Нет колонок для анализа после исключения.")
             elif not any([use_rapidfuzz, use_sentence_transformers, use_record_linkage]):
                 st.warning("Выберите хотя бы один метод сравнения!")
-            elif len(columns) > 100:
+            elif len(columns) > 1000:
                 st.error(f"❌ Слишком много колонок: {len(columns)}. Максимум 100 колонок для предотвращения зависания!")
             elif len(columns) > 30:
                 st.warning(f"⚠️ Внимание: выбрано {len(columns)} колонок. Это займет {len(columns)*(len(columns)-1)//2} сравнений и может занять время!")
